@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>风控管理 - 操盘系统</title>
+  <style>
+    /* ========== CSS 变量 ========== */
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #1c2128;
+      --bg-hover: #21262d;
+      --bg-card: #1a1f26;
+      --border: #30363d;
+      --border-light: #3d444d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+      --accent-blue: #58a6ff;
+      --accent-cyan: #39d353;
+      --accent-green: #3fb950;
+      --accent-red: #f85149;
+      --accent-orange: #d29922;
+      --accent-purple: #a371f7;
+      --accent-yellow: #f0c000;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ========== 顶部导航栏 ========== */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      z-index: 100;
+    }
+
+    .top-nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-right: 24px;
+      border-right: 1px solid var(--border);
+      margin-right: 8px;
+      text-decoration: none;
+    }
+
+    .top-nav-logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .top-nav-logo-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+    }
+
+    .top-nav-menu {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      gap: 4px;
+    }
+
+    .top-nav-item {
+      padding: 8px 12px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+
+    .top-nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .top-nav-item.active {
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--accent-blue);
+    }
+
+    .top-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
+      padding-left: 16px;
+      border-left: 1px solid var(--border);
+    }
+
+    .top-nav-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .top-nav-avatar {
+      width: 28px;
+      height: 28px;
+      background: var(--accent-red);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .top-nav-username {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* ========== 主布局 ========== */
+    .page-container {
+      display: flex;
+      padding-top: 48px;
+      min-height: 100vh;
+    }
+
+    /* ========== 左侧导航 ========== */
+    .side-nav {
+      width: 220px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+      position: fixed;
+      top: 48px;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+    }
+
+    .side-nav-header {
+      padding: 0 16px 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+
+    .side-nav-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .side-nav-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .side-nav-section {
+      padding: 8px 12px;
+    }
+
+    .side-nav-section-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 8px 8px 4px;
+    }
+
+    .side-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+
+    .side-nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .side-nav-item.active {
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--accent-blue);
+    }
+
+    .side-nav-item .icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .side-nav-item .label {
+      flex: 1;
+      font-size: 13px;
+    }
+
+    .side-nav-item .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: var(--bg-tertiary);
+      border-radius: 10px;
+      color: var(--text-muted);
+    }
+
+    /* ========== 主内容区 ========== */
+    .main-content {
+      flex: 1;
+      margin-left: 220px;
+      padding: 24px 32px;
+      max-width: calc(100% - 220px);
+    }
+
+    /* ========== 内容头部 ========== */
+    .content-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .content-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .content-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* ========== 按钮 ========== */
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #4c9aed;
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 11px;
+    }
+
+    /* ========== 配置面板隐藏 ========== */
+    .config-panel {
+      display: none;
+    }
+
+    .config-panel.active {
+      display: block;
+    }
+
+    /* ========== 配置卡片 ========== */
+    .config-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .config-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .config-card-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .config-card-body {
+      padding: 20px;
+    }
+
+    /* ========== 提示信息 ========== */
+    .info-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(88, 166, 255, 0.1);
+      border: 1px solid rgba(88, 166, 255, 0.3);
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: var(--accent-blue);
+    }
+
+    .info-box.warning {
+      background: rgba(210, 153, 34, 0.1);
+      border-color: rgba(210, 153, 34, 0.3);
+      color: var(--accent-orange);
+    }
+
+    /* ========== 配置表格 ========== */
+    .config-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .config-table th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .config-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .config-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .config-table tr:hover {
+      background: var(--bg-hover);
+    }
+
+    .config-label {
+      font-weight: 500;
+    }
+
+    .config-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .config-value {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .config-input {
+      padding: 6px 10px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-size: 12px;
+      width: 120px;
+      text-align: right;
+    }
+
+    .config-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .config-input.wide {
+      width: 150px;
+    }
+
+    .config-unit {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .config-default {
+      font-size: 10px;
+      color: var(--text-muted);
+      padding: 2px 6px;
+    }
+
+    /* 角色标签 */
+    .role-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+
+    .role-tag.prematch {
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--accent-blue);
+    }
+
+    .role-tag.live {
+      background: rgba(248, 81, 73, 0.15);
+      color: var(--accent-red);
+    }
+
+    .role-tag.settlement {
+      background: rgba(163, 113, 247, 0.15);
+      color: var(--accent-purple);
+    }
+
+    /* 状态标签 */
+    .status-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+    }
+
+    .status-tag.active {
+      background: rgba(63, 185, 80, 0.15);
+      color: var(--accent-green);
+    }
+
+    .status-tag.offline {
+      background: rgba(139, 148, 158, 0.15);
+      color: var(--text-muted);
+    }
+
+    /* 操作按钮 */
+    .btn-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 8px;
+      font-size: 14px;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+
+    .btn-icon:hover {
+      opacity: 1;
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+    }
+
+    /* ========== 开关组件 ========== */
+    .switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .switch.active {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .switch.active::after {
+      left: 18px;
+      background: #fff;
+    }
+
+    /* ========== 等级标签 ========== */
+    .level-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .level-badge.default {
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--accent-blue);
+    }
+
+    .level-badge.custom {
+      background: rgba(163, 113, 247, 0.15);
+      color: var(--accent-purple);
+    }
+
+    /* ========== 等级配置Grid ========== */
+    .level-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .level-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .level-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .level-card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .level-card-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .level-card-actions .btn-icon {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .level-card-actions .btn-icon:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .level-config-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .level-config-row:last-child {
+      border-bottom: none;
+    }
+
+    .level-config-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .level-config-input {
+      width: 140px;
+    }
+
+    /* ========== 添加等级按钮 ========== */
+    .add-level-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--bg-tertiary);
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s;
+      font-size: 13px;
+    }
+
+    .add-level-btn:hover {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      background: rgba(88, 166, 255, 0.05);
+    }
+
+    /* ========== 矩阵配置表格 ========== */
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .matrix-table th {
+      padding: 10px 8px;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: center;
+      white-space: nowrap;
+    }
+    .matrix-table th.col-level {
+      text-align: left;
+      width: 100px;
+      padding-left: 12px;
+    }
+    .matrix-table td {
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+    .matrix-table tr:hover {
+      background: var(--bg-hover);
+    }
+    .matrix-table tr:last-child td {
+      border-bottom: none;
+    }
+    .matrix-table .matrix-input {
+      padding: 5px 6px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text-primary);
+      font-size: 11px;
+      width: 100px;
+      text-align: right;
+    }
+    .matrix-table .matrix-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+    .group-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .group-badge.group-handicap { background: rgba(88,166,255,0.15); color: var(--accent-blue); }
+    .group-badge.group-ou { background: rgba(63,185,80,0.15); color: var(--accent-green); }
+    .group-badge.group-corner { background: rgba(210,153,34,0.15); color: var(--accent-orange); }
+    .group-badge.group-goal { background: rgba(0,180,180,0.15); color: #00b4b4; }
+    .group-badge.group-half { background: rgba(139,148,158,0.15); color: var(--text-secondary); }
+    .group-badge.group-special { background: rgba(163,113,247,0.15); color: var(--accent-purple); }
+    .matrix-table .level-name {
+      font-weight: 500;
+      text-align: left;
+      padding-left: 12px;
+    }
+    .level-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .level-tag.tag-default {
+      background: rgba(88,166,255,0.15);
+      color: var(--accent-blue);
+    }
+    .level-tag.tag-normal {
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+    }
+    .group-header-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+    .bet-group-header td {
+      padding: 10px 12px !important;
+      border-bottom: 1px solid var(--border) !important;
+    }
+    .bet-group-header:hover {
+      background: transparent !important;
+    }
+
+    /* ========== 可折叠等级卡片 ========== */
+    .level-card .level-card-body {
+      padding: 0 16px 16px;
+    }
+    .level-card.collapsed .level-card-body {
+      display: none;
+    }
+    .level-card .collapse-icon {
+      transition: transform 0.2s;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .level-card.collapsed .collapse-icon {
+      transform: rotate(-90deg);
+    }
+    .level-preview {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+    .level-card-header.clickable {
+      cursor: pointer;
+      user-select: none;
+    }
+    .level-card-header.clickable:hover {
+      background: rgba(255,255,255,0.02);
+    }
+    .group-config-section {
+      margin-top: 4px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+    .group-config-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0 0 4px;
+    }
+    .level-config-row .group-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ========== 玩法表格紧凑样式 ========== */
+    .bet-type-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .bet-type-table th,
+    .bet-type-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .bet-type-table th {
+      background: var(--bg-tertiary);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    #bettypeTable thead th { position: sticky; top: 0; z-index: 2; }
+
+    .bet-type-table tr:hover {
+      background: var(--bg-hover);
+    }
+
+    .bet-type-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .bet-type-name {
+      font-weight: 500;
+    }
+
+    .bet-type-id {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    .parlay-type-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(163, 113, 247, 0.15);
+      color: var(--accent-purple);
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* ========== 空状态 ========== */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state .icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    /* ========== 全局水印 ========== */
+    .watermark {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 99999;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 顶部导航栏 -->
+  <nav class="top-nav">
+    <a class="top-nav-logo" href="trading-list.html">
+      <span class="top-nav-logo-icon">T</span>
+      <span class="top-nav-logo-text">TMS</span>
+    </a>
+    <div class="top-nav-menu">
+      <a class="tms-nav-item" href="league-management.html">联赛管理</a>
+      <div class="tms-nav-group">
+        <span class="tms-nav-item tms-nav-trigger" data-group>操盘管理 <span class="tms-nav-caret">▾</span></span>
+        <div class="tms-nav-dd">
+          <a href="trading-list.html">操盘列表</a>
+          <a href="trading-detail.html">操盘详情</a>
+        </div>
+      </div>
+      <div class="tms-nav-group active">
+        <span class="tms-nav-item tms-nav-trigger" data-group>风控管理 <span class="tms-nav-caret">▾</span></span>
+        <div class="tms-nav-dd">
+          <a href="risk-management.html" class="cur">风控配置</a>
+          <a href="risk-log.html">风控日志</a>
+        </div>
+      </div>
+      <div class="tms-nav-group">
+        <span class="tms-nav-item tms-nav-trigger" data-group>结算管理 <span class="tms-nav-caret">▾</span></span>
+        <div class="tms-nav-dd">
+          <a href="settlement-list.html">结算列表</a>
+          <a href="settlement-detail.html">结算详情</a>
+          <a href="settlement-report.html">结算报表</a>
+        </div>
+      </div>
+    </div>
+    <div class="top-nav-right">
+      <div style="display:flex;align-items:center;gap:6px;padding-right:12px;border-right:1px solid var(--border);">
+        <span style="width:6px;height:6px;background:var(--accent-green);border-radius:50%;"></span>
+        <span style="font-size:11px;color:var(--text-secondary);">IM</span>
+        <span style="font-size:10px;color:var(--text-muted);">23ms</span>
+      </div>
+      <div class="top-nav-user">
+        <div class="top-nav-avatar">张</div>
+        <span class="top-nav-username">张三</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-container">
+    <!-- 左侧导航 -->
+    <aside class="side-nav">
+      <div class="side-nav-header">
+        <div class="side-nav-title">风控配置</div>
+        <div class="side-nav-subtitle">配置限额规则和告警阈值</div>
+      </div>
+
+      <style>
+        .fx-widget{margin:0 12px 14px;padding:10px 12px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;}
+        .fx-widget .fx-title{font-size:11px;color:var(--text-muted);margin-bottom:5px;}
+        .fx-widget .fx-rates{font-size:12px;color:var(--text-secondary);line-height:1.7;}
+        .fx-widget .fx-rates b{color:var(--text-primary);font-weight:600;}
+        .fx-widget .fx-foot{display:flex;align-items:center;justify-content:space-between;margin-top:7px;}
+        .fx-widget .fx-time{font-size:11px;color:var(--text-muted);}
+        .fx-widget .fx-refresh{padding:3px 10px;font-size:11px;border:1px solid var(--border);background:transparent;color:var(--accent-blue);border-radius:6px;cursor:pointer;}
+        .fx-widget .fx-refresh:hover{border-color:var(--accent-blue);}
+        .fx-widget .fx-stale{margin-top:7px;font-size:11px;color:var(--accent-yellow);}
+      </style>
+      <div class="fx-widget">
+        <div class="fx-title">全局汇率（手动刷新）</div>
+        <div class="fx-rates" id="fxRates">—</div>
+        <div class="fx-foot">
+          <span class="fx-time" id="fxTime">—</span>
+          <button class="fx-refresh" onclick="fxRefresh()">刷新</button>
+        </div>
+        <div class="fx-stale" id="fxStaleMsg" style="display:none;">⚠ 汇率不是最新（超过1分钟），请刷新</div>
+      </div>
+
+      <div class="side-nav-section">
+        <div class="side-nav-section-title">限额配置</div>
+        <div class="side-nav-item active" onclick="switchPanel('match-limit')">
+          <span class="icon">🏟️</span>
+          <span class="label">联赛限额</span>
+        </div>
+        <div class="side-nav-item" onclick="switchPanel('user-limit')">
+          <span class="icon">👤</span>
+          <span class="label">用户限额</span>
+        </div>
+        <div class="side-nav-item" onclick="switchPanel('bettype-limit')">
+          <span class="icon">🎮</span>
+          <span class="label">玩法限额</span>
+          <span class="badge">86</span>
+        </div>
+        <div class="side-nav-item" onclick="switchPanel('parlay-limit')">
+          <span class="icon">🔗</span>
+          <span class="label">串关限额</span>
+        </div>
+      </div>
+
+      <div class="side-nav-section">
+        <div class="side-nav-section-title">告警配置</div>
+        <div class="side-nav-item" onclick="switchPanel('alert-config')">
+          <span class="icon">🔔</span>
+          <span class="label">告警阈值</span>
+          <span class="badge">5</span>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+
+
+      <!-- 联赛限额面板 -->
+      <div class="config-panel active" id="panel-match-limit">
+        <div class="content-header">
+          <div>
+            <div class="content-title">联赛限额配置</div>
+            <div class="content-desc">按联赛等级（未分配 加 等级1至10共11档）配置单场货量与6个玩法分组的货量、单用户货量与单注限额（单比赛单用户货量已移至「用户限额」统一管控）</div>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <span>💡</span>
+          <div>
+            联赛等级在「联赛管理」中分配（1 = 最高级，10 = 最低级）。未分配等级的联赛使用「未分配」配置。点击等级标题可展开/收起。<br>
+            <span style="margin-top:4px;display:inline-block;">玩法分组：</span>
+            <span class="group-badge group-handicap" style="margin-left:4px;">让球</span>
+            <span class="group-badge group-ou" style="margin-left:6px;">大小</span>
+            <span class="group-badge group-corner" style="margin-left:6px;">角球</span>
+            <span class="group-badge group-goal" style="margin-left:6px;">进球</span>
+            <span class="group-badge group-half" style="margin-left:6px;">半场</span>
+            <span class="group-badge group-special" style="margin-left:6px;">特殊</span>
+          </div>
+        </div>
+
+        <div class="level-grid" id="match-level-grid">
+        <style>
+        .lt-tab{padding:5px 14px;font-size:13px;background:transparent;border:1px solid var(--border);color:var(--text-secondary);border-radius:6px;cursor:pointer;}
+        .lt-tab.active{background:#2f81f7;border-color:#2f81f7;color:#fff;font-weight:500;}
+        </style>
+        <div style="padding:0 16px 16px;">
+          <div id="leagueBettypeTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin:12px 0;">
+            <button class="lt-tab active" data-tab="overall" onclick="switchLeagueTab('overall',this)">整体限额</button>
+            <button class="lt-tab" data-tab="handicap" onclick="switchLeagueTab('handicap',this)">让球</button>
+            <button class="lt-tab" data-tab="ou" onclick="switchLeagueTab('ou',this)">大小</button>
+            <button class="lt-tab" data-tab="corner" onclick="switchLeagueTab('corner',this)">角球</button>
+            <button class="lt-tab" data-tab="goal" onclick="switchLeagueTab('goal',this)">进球</button>
+            <button class="lt-tab" data-tab="half" onclick="switchLeagueTab('half',this)">半场</button>
+            <button class="lt-tab" data-tab="special" onclick="switchLeagueTab('special',this)">特殊</button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;margin:0 0 10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;">
+            <div style="font-size:12px;color:var(--text-secondary);">CNY 为基准；USDT / VND 可手动编辑，或一键按左侧「全局汇率」换算填入（汇率过期需先刷新）</div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span id="llNote" style="font-size:12px;color:var(--text-secondary);"></span>
+              <button class="btn btn-primary" onclick="llFill()" style="padding:6px 14px;font-size:12px;">按汇率换算填入 USDT / VND</button>
+            </div>
+          </div>
+          <style>#leagueMatrixTable .matrix-input.ro{background:var(--bg-tertiary);color:var(--text-secondary);cursor:not-allowed;opacity:.8;} #leagueMatrixHead .cur-h{color:var(--text-muted);font-weight:500;}</style>
+          <div style="overflow-x:auto;">
+          <table class="matrix-table" id="leagueMatrixTable">
+            <thead id="leagueMatrixHead"></thead>
+            <tbody id="leagueMatrixBody"></tbody>
+          </table>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text-muted);">等级 1 = 最高级，10 = 最低级 · 整体限额的开关控制是否启用该项校验</div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
+            <button class="btn btn-secondary" onclick="resetToDefault()" style="padding:6px 16px;font-size:12px;">恢复默认</button>
+            <button class="btn btn-primary" onclick="saveConfig()" style="padding:6px 16px;font-size:12px;">保存</button>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <!-- 用户限额面板 -->
+      <div class="config-panel" id="panel-user-limit">
+        <div class="content-header">
+          <div>
+            <div class="content-title">用户限额</div>
+            <div class="content-desc">控制单个用户的投注行为：单用户单比赛最大货量、单用户单玩法最大货量、单注投注区间、串关投注区间</div>
+          </div>
+        </div>
+
+        <style>
+          #panel-user-limit .uc-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;margin-bottom:10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;}
+          #panel-user-limit .uc-rate{font-size:12px;color:var(--text-secondary);}
+          #panel-user-limit .uc-rate b{color:var(--text-primary);font-weight:600;}
+          #panel-user-limit .uc-bar-right{display:flex;align-items:center;gap:12px;}
+          #panel-user-limit .uc-note{font-size:12px;color:var(--text-secondary);}
+          #panel-user-limit .uc-note.done{color:var(--accent-green);}
+          #panel-user-limit .uc-table{width:100%;border-collapse:collapse;}
+          #panel-user-limit .uc-table th{text-align:left;font-size:12px;color:var(--text-secondary);font-weight:600;padding:9px 12px;border-bottom:1px solid var(--border);}
+          #panel-user-limit .uc-table th:first-child{text-align:left;}
+          #panel-user-limit .uc-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+          #panel-user-limit .uc-table tbody tr:last-child td{border-bottom:none;}
+          #panel-user-limit .uc-flabel{color:var(--text-primary);font-size:13px;}
+          #panel-user-limit .uc-input{text-align:right;font-variant-numeric:tabular-nums;}
+          #panel-user-limit .uc-single{width:140px;}
+          #panel-user-limit .uc-range{display:flex;align-items:center;gap:6px;}
+          #panel-user-limit .uc-range .uc-input{width:84px;}
+          #panel-user-limit .uc-tilde{color:var(--text-secondary);}
+        </style>
+        <div class="level-grid" id="user-level-grid">
+          <div class="level-card">
+            <div class="uc-bar">
+              <div class="uc-rate" style="font-size:12px;color:var(--text-secondary);">换算填入按左侧「全局汇率」计算（汇率过期需先刷新）</div>
+              <div class="uc-bar-right">
+                <span class="uc-note" id="ucNote"></span>
+                <button class="btn btn-primary" onclick="ucFill()" style="padding:6px 14px;font-size:12px;">按汇率换算填入 USDT / VND</button>
+              </div>
+            </div>
+            <table class="uc-table">
+              <thead><tr>
+                <th style="width:32%;">限额项</th>
+                <th>CNY · 基准</th>
+                <th>USDT</th>
+                <th>VND</th>
+              </tr></thead>
+              <tbody id="ucBody"></tbody>
+            </table>
+            <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px 16px 4px;border-top:1px solid var(--border);margin-top:8px;">
+              <button class="btn btn-secondary" onclick="resetToDefault()" style="padding:6px 16px;font-size:12px;">恢复默认</button>
+              <button class="btn btn-primary" onclick="saveConfig()" style="padding:6px 16px;font-size:12px;">保存</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 玩法限额面板 -->
+      <div class="config-panel" id="panel-bettype-limit">
+        <div class="content-header">
+          <div>
+            <div class="content-title">玩法限额配置</div>
+            <div class="content-desc">按6组管理208种FT Soccer玩法的全局累计货量上限（跨赛事合计）。单注限额由「用户限额」与「联赛限额 · 单注限额」共同决定</div>
+          </div>
+        </div>
+
+                        <div style="padding:0 4px 8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 10px;">
+            <div id="bettypeTabs" style="display:flex;flex-wrap:wrap;gap:6px;"><button class="lt-tab active" data-bt="handicap" onclick="switchBettypeTab('handicap',this)">让球</button><button class="lt-tab" data-bt="ou" onclick="switchBettypeTab('ou',this)">大小</button><button class="lt-tab" data-bt="corner" onclick="switchBettypeTab('corner',this)">角球</button><button class="lt-tab" data-bt="goal" onclick="switchBettypeTab('goal',this)">进球</button><button class="lt-tab" data-bt="half" onclick="switchBettypeTab('half',this)">半场</button><button class="lt-tab" data-bt="special" onclick="switchBettypeTab('special',this)">特殊</button></div>
+            <div style="display:flex;gap:8px;flex-shrink:0;">
+              <button class="btn btn-secondary" onclick="resetToDefault()" style="padding:6px 16px;font-size:12px;">恢复默认</button>
+              <button class="btn btn-primary" onclick="saveConfig()" style="padding:6px 16px;font-size:12px;">保存</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;margin-bottom:10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;">
+            <div style="font-size:12px;color:var(--text-secondary);">换算填入按左侧「全局汇率」计算（汇率过期需先刷新）</div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span id="btNote" style="font-size:12px;color:var(--text-secondary);"></span>
+              <button class="btn btn-primary" onclick="btFill()" style="padding:6px 14px;font-size:12px;">按汇率换算填入 USDT / VND</button>
+            </div>
+          </div>
+          <style>#bettypeTable .bt-in{width:120px;text-align:right;font-variant-numeric:tabular-nums;}</style>
+          <div style="max-height:440px;overflow:auto;border:1px solid var(--border);border-radius:8px;">
+            <table class="bet-type-table" id="bettypeTable">
+              <thead><tr><th style="width:110px;">玩法ID</th><th>玩法名称</th><th style="width:140px;">CNY</th><th style="width:140px;">USDT</th><th style="width:150px;">VND</th></tr></thead>
+              <tbody id="bettypeBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 串关限额面板 -->
+      <div class="config-panel" id="panel-parlay-limit">
+        <div class="content-header">
+          <div>
+            <div class="content-title">串关限额配置</div>
+            <div class="content-desc">串关投注的限制规则（全局配置，不区分联赛等级）</div>
+          </div>
+        </div>
+
+        <!-- N串关分别限额 -->
+        <div class="config-card" style="margin-top:16px;">
+          <div class="config-card-header">
+            <span class="config-card-title">N串关分别限额</span>
+            <span style="font-size:11px;color:var(--text-muted);margin-left:8px;">按串关场数分别设置货量上限</span>
+          </div>
+          <div class="config-card-body" style="padding:12px;">
+            <style>#parlayTable .pl-in{width:108px;text-align:right;font-variant-numeric:tabular-nums;} #parlayTable .cur-h{color:var(--text-muted);font-weight:500;}</style>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;margin-bottom:10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;">
+              <div style="font-size:12px;color:var(--text-secondary);">CNY 为基准；USDT / VND 可手动编辑，或一键按左侧「全局汇率」换算填入（汇率过期需先刷新）</div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <span id="plNote" style="font-size:12px;color:var(--text-secondary);"></span>
+                <button class="btn btn-primary" onclick="plFill()" style="padding:6px 14px;font-size:12px;">按汇率换算填入 USDT / VND</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+            <table class="bet-type-table" id="parlayTable">
+              <thead>
+                <tr><th rowspan="2" style="width:90px;">串关类型</th><th colspan="3" style="text-align:center;">单注限额</th><th colspan="3" style="text-align:center;">总货量上限</th></tr>
+                <tr><th>CNY</th><th class="cur-h">USDT</th><th class="cur-h">VND</th><th>CNY</th><th class="cur-h">USDT</th><th class="cur-h">VND</th></tr>
+              </thead>
+              <tbody id="parlayBody"></tbody>
+            </table>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;padding:8px 12px;border-top:1px solid var(--border-color);">
+            <button class="btn btn-secondary" onclick="resetToDefault()" style="padding:4px 12px;font-size:11px;">恢复默认</button>
+            <button class="btn btn-primary" onclick="saveConfig()" style="padding:4px 12px;font-size:11px;">保存</button>
+          </div>
+        </div>
+
+        <!-- #26：复式串关 + 串关类型启用/停用 已迁至联赛管理（串关限额仍留风控） -->
+      </div>
+
+      <!-- 告警阈值面板 -->
+      <div class="config-panel" id="panel-alert-config">
+        <div class="content-header">
+          <div>
+            <div class="content-title">告警阈值配置</div>
+            <div class="content-desc">配置各类告警的触发条件和阈值。金额类告警（风险敞口、大额投注）按币种独立配置；比例类告警（偏离、单边、货量占比）全局统一，与币种无关</div>
+          </div>
+        </div>
+
+        <div class="info-box warning">
+          <span>⚠️</span>
+          <div>告警触发后会在操盘列表和操盘详情页显示告警标记，操盘手需及时关注处理。</div>
+        </div>
+
+        <div class="config-card">
+          <div class="config-card-body">
+            <table class="config-table">
+              <thead>
+                <tr>
+                  <th style="width:180px;">告警类型</th>
+                  <th style="width:280px;">触发条件</th>
+                  <th style="width:150px;">阈值</th>
+                  <th style="width:80px;">状态</th>
+                  <th>默认值</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div class="config-label">偏离数据源告警</div></td>
+                  <td><div class="config-desc">本地赔率与 IM 数据源偏离超过阈值时告警</div></td>
+                  <td><div class="config-value"><input type="text" class="config-input" value="0.10"><span class="config-unit currency-immune-unit">绝对值</span></div></td>
+                  <td><div class="switch active" onclick="toggleSwitch(this)"></div></td>
+                  <td><span class="config-default">0.10 <span style="font-size:10px;color:var(--accent-purple);">（不受币种影响）</span></span></td>
+                </tr>
+                <tr>
+                  <td><div class="config-label">单边投注告警</div></td>
+                  <td><div class="config-desc">某选项投注占比超过阈值时告警</div></td>
+                  <td><div class="config-value"><input type="text" class="config-input" value="70"><span class="config-unit currency-immune-unit">%</span></div></td>
+                  <td><div class="switch active" onclick="toggleSwitch(this)"></div></td>
+                  <td><span class="config-default">70% <span style="font-size:10px;color:var(--accent-purple);">（不受币种影响）</span></span></td>
+                </tr>
+                <tr>
+                  <td><div class="config-label">货量接近上限告警</div></td>
+                  <td>
+                    <div class="config-desc">货量占限额比例达到阈值时告警，检测两个维度：</div>
+                    <div class="config-desc" style="margin-top:4px;color:#8b949e;font-size:12px;">
+                      ① <b>整场维度</b>：整场已接受货量 ÷ 整场最大货量<br/>
+                      ② <b>分组维度</b>：让球/大小/角球/进球/半场/特殊 各组已接受货量 除以 对应分组限额<br/>
+                      <span style="color:#f0883e;">告警提示示例：「让球组货量接近上限：250,000 / 300,000（83.3%）」</span>
+                    </div>
+                  </td>
+                  <td><div class="config-value"><input type="text" class="config-input" value="80"><span class="config-unit currency-immune-unit">%</span></div></td>
+                  <td><div class="switch active" onclick="toggleSwitch(this)"></div></td>
+                  <td><span class="config-default">80% <span style="font-size:10px;color:var(--accent-purple);">（不受币种影响）</span></span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="config-card" style="margin-top:14px;">
+          <div class="config-card-body" style="padding:12px;">
+            <div style="font-size:13px;color:var(--text-primary);font-weight:600;margin-bottom:8px;">金额类告警 · 按币种（风险敞口 / 大额投注）</div>
+            <style>#alertMoneyTable .al-in{width:120px;text-align:right;font-variant-numeric:tabular-nums;} #alertMoneyTable .cur-h{color:var(--text-muted);font-weight:500;}</style>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;margin-bottom:10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;">
+              <div style="font-size:12px;color:var(--text-secondary);">CNY 为基准；USDT / VND 可手动编辑，或一键按左侧「全局汇率」换算填入（汇率过期需先刷新）</div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <span id="alNote" style="font-size:12px;color:var(--text-secondary);"></span>
+                <button class="btn btn-primary" onclick="alFill()" style="padding:6px 14px;font-size:12px;">按汇率换算填入 USDT / VND</button>
+              </div>
+            </div>
+            <table class="config-table" id="alertMoneyTable">
+              <thead><tr><th style="width:220px;">告警类型</th><th>CNY</th><th class="cur-h">USDT</th><th class="cur-h">VND</th><th style="width:70px;">状态</th></tr></thead>
+              <tbody id="alertBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--border-color);">
+          <button class="btn btn-secondary" onclick="resetToDefault()" style="padding:6px 16px;font-size:12px;">恢复默认</button>
+          <button class="btn btn-primary" onclick="saveConfig()" style="padding:6px 16px;font-size:12px;">保存</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <style>
+    /* 币种 Tab 样式 */
+    .currency-tab {
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .currency-tab:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+    .currency-tab.active {
+      background: var(--accent-blue);
+      color: #fff;
+      border-color: var(--accent-blue);
+    }
+    /* 比例类告警配置行标记（不受币种影响） */
+    .currency-immune {
+      position: relative;
+    }
+    .currency-immune::after {
+      content: '通用';
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 9px;
+      color: var(--accent-purple);
+      background: rgba(163,113,247,0.1);
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+  </style>
+
+  <script>
+    // 当前选中的币种
+    let currentCurrency = 'CNY';
+
+    // 币种符号映射
+    const currencySymbols = {
+      CNY: '元', USD: '$', VND: '₫', THB: '฿', PHP: '₱', KRW: '₩'
+    };
+
+    // 切换币种
+    function switchCurrency(currency, btn) {
+      currentCurrency = currency;
+      // 更新 Tab 高亮
+      document.querySelectorAll('.currency-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      // 更新所有金额单位标签
+      const symbol = currencySymbols[currency] || currency;
+      document.querySelectorAll('.config-unit:not(.currency-immune-unit)').forEach(el => {
+        el.textContent = symbol;
+      });
+      // 更新提示文字
+      document.getElementById('currency-hint').textContent =
+        currency === 'CNY' ? '当前为默认币种 CNY' : '当前币种：' + currency + '（独立配置，与其他币种互不影响）';
+    }
+
+    // 切换面板
+    function switchPanel(panelId) {
+      // 更新导航高亮
+      document.querySelectorAll('.side-nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+
+      // 切换面板显示
+      document.querySelectorAll('.config-panel').forEach(panel => {
+        panel.classList.remove('active');
+      });
+      document.getElementById('panel-' + panelId).classList.add('active');
+    }
+
+    // 切换开关
+    function toggleSwitch(el) {
+      el.classList.toggle('active');
+    }
+
+    // 保存配置
+    function saveConfig() {
+      alert('配置已保存（原型演示）\n\n注意：限额配置变更仅对新上架赛事生效，已上架赛事保持原配置。\n\n实际开发中，每个等级/面板独立保存，仅提交当前修改的配置项。');
+    }
+
+    // 恢复默认
+    function resetToDefault() {
+      if (confirm('确定要恢复当前页面配置为默认值吗？')) {
+        alert('已恢复默认配置（原型演示）');
+      }
+    }
+
+
+    // 切换等级卡片展开/折叠
+    function toggleLevelCard(header) {
+      const card = header.closest('.level-card');
+      card.classList.toggle('collapsed');
+    }
+
+    // ========== 全局水印 ==========
+    (function () {
+      const WATERMARK_CONFIG = {
+        text: '仅供内部使用 telegram：nnns1992',
+        tileWidth: 520,
+        tileHeight: 360,
+        rotateDeg: -24,
+        fontSize: 16,
+        lineGap: 10,
+        refreshEachMinute: true
+      };
+
+      function pad2(n) {
+        return String(n).padStart(2, '0');
+      }
+
+      function formatLocal(d) {
+        return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+      }
+
+      function buildTile(line1, line2) {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = WATERMARK_CONFIG.tileWidth;
+        const h = WATERMARK_CONFIG.tileHeight;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        const ctx = canvas.getContext('2d', { alpha: true });
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, w, h);
+        ctx.globalAlpha = 0.22;
+        ctx.fillStyle = 'rgb(130, 130, 130)';
+        ctx.font = `${WATERMARK_CONFIG.fontSize}px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif`;
+        ctx.textBaseline = 'middle';
+        ctx.save();
+        ctx.translate(w / 2, h / 2);
+        ctx.rotate((WATERMARK_CONFIG.rotateDeg * Math.PI) / 180);
+        ctx.translate(-w / 2, -h / 2);
+        const x = 28;
+        const y = h / 2 - 10;
+        ctx.fillText(line1, x, y);
+        ctx.fillText(line2, x, y + WATERMARK_CONFIG.fontSize + WATERMARK_CONFIG.lineGap);
+        ctx.restore();
+        return canvas.toDataURL('image/png');
+      }
+
+      function refreshWatermark() {
+        const el = document.querySelector('.watermark');
+        if (!el) return;
+        const now = new Date();
+        const url = buildTile(WATERMARK_CONFIG.text, formatLocal(now));
+        el.style.backgroundImage = `url(${url})`;
+        el.style.backgroundSize = `${WATERMARK_CONFIG.tileWidth}px ${WATERMARK_CONFIG.tileHeight}px`;
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', refreshWatermark);
+      } else {
+        refreshWatermark();
+      }
+
+      if (WATERMARK_CONFIG.refreshEachMinute) {
+        setInterval(refreshWatermark, 60 * 1000);
+      }
+    })();
+  
+    // #26/联赛限额矩阵：玩法Tab + 等级矩阵（替代原 11 张折叠等级卡）
+    // ===== 全局汇率（左侧、手动刷新、1分钟新鲜度） =====
+    var FX = { usdt: 7.20, vnd: 3500, ts: Date.now() };
+    function fxAgeSec(){ return Math.floor((Date.now()-FX.ts)/1000); }
+    function fxStale(){ return fxAgeSec() > 60; }
+    function fx2(n){ return (n<10?'0':'')+n; }
+    function fxRenderNav(){
+      var r=document.getElementById('fxRates'); if(!r) return;
+      r.innerHTML='1 USDT = <b>'+FX.usdt.toFixed(2)+'</b> CNY<br>1 CNY = <b>'+Math.round(FX.vnd).toLocaleString('en-US')+'</b> VND';
+      var d=new Date(FX.ts);
+      document.getElementById('fxTime').textContent='更新于 '+fx2(d.getHours())+':'+fx2(d.getMinutes())+':'+fx2(d.getSeconds())+' · '+fxAgeSec()+'秒前';
+      document.getElementById('fxStaleMsg').style.display = fxStale() ? '' : 'none';
+    }
+    function fxRefresh(){
+      FX.usdt = 7.20 + (Math.random()-0.5)*0.06;
+      FX.vnd  = 3500 + Math.round((Math.random()-0.5)*30);
+      FX.ts = Date.now();
+      fxRenderNav();
+    }
+
+    var _llLevels = ['未分配','等级1','等级2','等级3','等级4','等级5','等级6','等级7','等级8','等级9','等级10'];
+    var _llCols = {
+      overall: ['单场最大货量'],
+      handicap: ['分组货量','单用户货量','单注下限','单注上限'],
+      ou: ['分组货量','单用户货量','单注下限','单注上限'],
+      corner: ['分组货量','单用户货量','单注下限','单注上限'],
+      goal: ['分组货量','单用户货量','单注下限','单注上限'],
+      half: ['分组货量','单用户货量','单注下限','单注上限'],
+      special: ['分组货量','单用户货量','单注下限','单注上限']
+    };
+    function _llFmt(n){ return (Number(n)||0).toLocaleString('en-US'); }
+    function _llDefCNY(tab, idx){
+      var base = idx===0 ? 3 : (11 - idx);
+      return (tab==='overall') ? [base*20000] : [base*12000, base*2000, 10, base*800];
+    }
+    var LL_DATA = {};
+    (function(){
+      Object.keys(_llCols).forEach(function(tab){
+        LL_DATA[tab] = _llLevels.map(function(name, idx){
+          return _llDefCNY(tab, idx).map(function(c){ return {cny:c, usdt:ucRoundNice(c/7.2), vnd:ucRoundNice(c*3500)}; });
+        });
+      });
+    })();
+    var _llTab='overall', LL_LASTFILL=null;
+    function llSet(tab,idx,ci,cur,v){ LL_DATA[tab][idx][ci][cur]=parseInt(String(v).replace(/[^\d]/g,''),10)||0; }
+    function llUpdateNote(){
+      var n=document.getElementById('llNote'); if(!n) return;
+      if(LL_LASTFILL){ n.style.color='var(--accent-green)'; n.textContent='已按 '+LL_LASTFILL.time+' 汇率填入（当时 1 USDT='+LL_LASTFILL.usdt+'）'; }
+      else { n.style.color='var(--text-secondary)'; n.textContent='USDT / VND 尚未按汇率填入，当前为独立配置值'; }
+    }
+    function switchLeagueTab(tab, el){
+      _llTab = tab;
+      var tabs = document.querySelectorAll('#leagueBettypeTabs .lt-tab');
+      tabs.forEach(function(b){ b.classList.toggle('active', el ? (b===el) : (b.dataset.tab===tab)); });
+      var cols = _llCols[tab] || _llCols.overall;
+      var h1='<tr><th class="col-level" rowspan="2">联赛等级</th>'+cols.map(function(c){return '<th colspan="3" style="text-align:center;">'+c+'</th>';}).join('')+'</tr>';
+      var h2='<tr>'+cols.map(function(){return '<th>CNY</th><th class="cur-h">USDT</th><th class="cur-h">VND</th>';}).join('')+'</tr>';
+      document.getElementById('leagueMatrixHead').innerHTML = h1+h2;
+      var rows = LL_DATA[tab] || [];
+      document.getElementById('leagueMatrixBody').innerHTML = _llLevels.map(function(name, idx){
+        var cells = rows[idx] || [];
+        return '<tr><td class="level-name">'+name+'</td>' +
+          cells.map(function(c, ci){
+            return ['cny','usdt','vnd'].map(function(cur){
+              return '<td><input type="text" class="matrix-input" value="'+_llFmt(c[cur])+'" oninput="llSet(\''+tab+'\','+idx+','+ci+',\''+cur+'\',this.value)"></td>';
+            }).join('');
+          }).join('') + '</tr>';
+      }).join('');
+      llUpdateNote();
+    }
+    function llFill(){
+      if(fxStale()){ alert('汇率不是最新（已超过1分钟），请先点左侧「刷新」更新汇率后再换算填入'); return; }
+      var fU=1/FX.usdt, fV=FX.vnd;
+      Object.keys(LL_DATA).forEach(function(tab){ LL_DATA[tab].forEach(function(cells){ cells.forEach(function(c){ c.usdt=ucRoundNice(c.cny*fU); c.vnd=ucRoundNice(c.cny*fV); }); }); });
+      var d=new Date(); LL_LASTFILL={time:fx2(d.getHours())+':'+fx2(d.getMinutes()), usdt:FX.usdt.toFixed(2)};
+      switchLeagueTab(_llTab, null);
+    }
+    // ===== 用户限额 · 多币种（横向表 + 一键按汇率填入 USDT/VND） =====
+    var UC_FIELDS = [
+      {k:'matchMax', l:'单用户单比赛最大货量', range:false},
+      {k:'playMax',  l:'单用户单玩法最大货量', range:false},
+      {k:'stake',    l:'单注投注区间', range:true},
+      {k:'parlay',   l:'串关投注区间', range:true}
+    ];
+    var UC_DATA = {
+      CNY: {matchMax:100000, playMax:50000, stakeMin:10, stakeMax:20000, parlayMin:10, parlayMax:100000},
+      USDT:{matchMax:15000,  playMax:8000,  stakeMin:2,  stakeMax:3500,  parlayMin:2,  parlayMax:15000},
+      VND: {matchMax:300000000, playMax:150000000, stakeMin:30000, stakeMax:70000000, parlayMin:30000, parlayMax:300000000}
+    };
+    var UC_LASTFILL = null;
+    function ucFmt(n){ return (Number(n)||0).toLocaleString('en-US'); }
+    function ucFmtKey(cur,key){ return ucFmt(UC_DATA[cur][key]); }
+    function ucSet(cur,key,v){ UC_DATA[cur][key]=parseInt(String(v).replace(/[^\d]/g,''),10)||0; }
+    function ucRoundNice(x){
+      if(x<=0) return 0;
+      if(x>=1e8) return Math.round(x/1e7)*1e7;
+      if(x>=1e6) return Math.round(x/1e5)*1e5;
+      if(x>=1e4) return Math.round(x/1e3)*1e3;
+      if(x>=1e3) return Math.round(x/100)*100;
+      if(x>=100) return Math.round(x/10)*10;
+      return Math.max(1, Math.round(x));
+    }
+    function ucCellSingle(cur,k){
+      return '<td><input type="text" class="config-input uc-input uc-single" value="'+ucFmt(UC_DATA[cur][k])+'" oninput="ucSet(\''+cur+'\',\''+k+'\',this.value)" onblur="this.value=ucFmtKey(\''+cur+'\',\''+k+'\')"></td>';
+    }
+    function ucCellRange(cur,k){
+      return '<td><div class="uc-range">'
+        +'<input type="text" class="config-input uc-input" value="'+ucFmt(UC_DATA[cur][k+'Min'])+'" oninput="ucSet(\''+cur+'\',\''+k+'Min\',this.value)" onblur="this.value=ucFmtKey(\''+cur+'\',\''+k+'Min\')">'
+        +'<span class="uc-tilde">~</span>'
+        +'<input type="text" class="config-input uc-input" value="'+ucFmt(UC_DATA[cur][k+'Max'])+'" oninput="ucSet(\''+cur+'\',\''+k+'Max\',this.value)" onblur="this.value=ucFmtKey(\''+cur+'\',\''+k+'Max\')">'
+        +'</div></td>';
+    }
+    function ucRender(){
+      var curs=['CNY','USDT','VND'];
+      document.getElementById('ucBody').innerHTML = UC_FIELDS.map(function(f){
+        var cells = curs.map(function(cur){ return f.range ? ucCellRange(cur,f.k) : ucCellSingle(cur,f.k); }).join('');
+        return '<tr><td class="uc-flabel">'+f.l+'</td>'+cells+'</tr>';
+      }).join('');
+      var note=document.getElementById('ucNote');
+      if(note){
+        if(UC_LASTFILL){ note.className='uc-note done'; note.textContent='已按 '+UC_LASTFILL.time+' 汇率填入 USDT / VND（当时 1 USDT='+UC_LASTFILL.usdt+'），可继续微调'; }
+        else { note.className='uc-note'; note.textContent='USDT / VND 尚未按汇率填入，当前为独立配置值'; }
+      }
+    }
+    function uc2(n){ return (n<10?'0':'')+n; }
+    function ucFill(){
+      if(fxStale()){ alert('汇率不是最新（已超过1分钟），请先点左侧「刷新」更新汇率后再换算填入'); return; }
+      var fUSDT = 1/FX.usdt, fVND = FX.vnd;
+      ['matchMax','playMax','stakeMin','stakeMax','parlayMin','parlayMax'].forEach(function(key){
+        UC_DATA.USDT[key]=ucRoundNice(UC_DATA.CNY[key]*fUSDT);
+        UC_DATA.VND[key] =ucRoundNice(UC_DATA.CNY[key]*fVND);
+      });
+      var d=new Date();
+      UC_LASTFILL={time:uc2(d.getHours())+':'+uc2(d.getMinutes()), usdt:FX.usdt.toFixed(2)};
+      ucRender();
+    }
+    // 串关限额 · 多币种
+    var PARLAY=[{t:'2串1',s:50000,o:500000},{t:'3串1',s:30000,o:300000},{t:'4串1',s:20000,o:200000},{t:'5串1',s:10000,o:100000},{t:'6串1',s:10000,o:100000},{t:'7串1',s:5000,o:50000},{t:'8串1',s:5000,o:50000},{t:'9串1',s:5000,o:50000},{t:'10串1',s:3000,o:30000}];
+    var PL_DATA=PARLAY.map(function(p){ return {t:p.t, single:{cny:p.s,usdt:ucRoundNice(p.s/7.2),vnd:ucRoundNice(p.s*3500)}, total:{cny:p.o,usdt:ucRoundNice(p.o/7.2),vnd:ucRoundNice(p.o*3500)}}; });
+    var PL_LASTFILL=null;
+    function _plFmt(n){ return (Number(n)||0).toLocaleString('en-US'); }
+    function plSet(i,f,cur,v){ PL_DATA[i][f][cur]=parseInt(String(v).replace(/[^\d]/g,''),10)||0; }
+    function plRender(){
+      var b=document.getElementById('parlayBody'); if(!b) return;
+      b.innerHTML=PL_DATA.map(function(r,i){
+        function cell(f,cur){ return '<td><input type="text" class="config-input pl-in" value="'+_plFmt(r[f][cur])+'" oninput="plSet('+i+',\''+f+'\',\''+cur+'\',this.value)"></td>'; }
+        return '<tr><td><span class="parlay-type-badge">'+r.t+'</span></td>'+cell('single','cny')+cell('single','usdt')+cell('single','vnd')+cell('total','cny')+cell('total','usdt')+cell('total','vnd')+'</tr>';
+      }).join('');
+      var n=document.getElementById('plNote');
+      if(n){ if(PL_LASTFILL){ n.style.color='var(--accent-green)'; n.textContent='已按 '+PL_LASTFILL.time+' 汇率填入（当时 1 USDT='+PL_LASTFILL.usdt+'）'; } else { n.style.color='var(--text-secondary)'; n.textContent='USDT / VND 尚未按汇率填入，当前为独立配置值'; } }
+    }
+    function plFill(){
+      if(fxStale()){ alert('汇率不是最新（已超过1分钟），请先点左侧「刷新」更新汇率后再换算填入'); return; }
+      var fU=1/FX.usdt, fV=FX.vnd;
+      PL_DATA.forEach(function(r){ ['single','total'].forEach(function(f){ r[f].usdt=ucRoundNice(r[f].cny*fU); r[f].vnd=ucRoundNice(r[f].cny*fV); }); });
+      var d=new Date(); PL_LASTFILL={time:fx2(d.getHours())+':'+fx2(d.getMinutes()), usdt:FX.usdt.toFixed(2)};
+      plRender();
+    }
+    // 金额类告警 · 多币种
+    var AL_DATA=[
+      {name:'风险敞口告警', desc:'盘口/玩法风险敞口超过阈值时告警', cny:1000000, usdt:ucRoundNice(1000000/7.2), vnd:ucRoundNice(1000000*3500)},
+      {name:'大额投注告警', desc:'单笔投注金额超过阈值时告警', cny:50000, usdt:ucRoundNice(50000/7.2), vnd:ucRoundNice(50000*3500)}
+    ];
+    var AL_LASTFILL=null;
+    function _alFmt(n){ return (Number(n)||0).toLocaleString('en-US'); }
+    function alSet(i,cur,v){ AL_DATA[i][cur]=parseInt(String(v).replace(/[^\d]/g,''),10)||0; }
+    function alRender(){
+      var b=document.getElementById('alertBody'); if(!b) return;
+      b.innerHTML=AL_DATA.map(function(r,i){
+        function cell(cur){ return '<td><input type="text" class="config-input al-in" value="'+_alFmt(r[cur])+'" oninput="alSet('+i+',\''+cur+'\',this.value)"></td>'; }
+        return '<tr><td><div class="config-label">'+r.name+'</div><div class="config-desc">'+r.desc+'</div></td>'+cell('cny')+cell('usdt')+cell('vnd')+'<td><div class="switch active" onclick="toggleSwitch(this)"></div></td></tr>';
+      }).join('');
+      var n=document.getElementById('alNote');
+      if(n){ if(AL_LASTFILL){ n.style.color='var(--accent-green)'; n.textContent='已按 '+AL_LASTFILL.time+' 汇率填入（当时 1 USDT='+AL_LASTFILL.usdt+'）'; } else { n.style.color='var(--text-secondary)'; n.textContent='USDT / VND 尚未按汇率填入，当前为独立配置值'; } }
+    }
+    function alFill(){
+      if(fxStale()){ alert('汇率不是最新（已超过1分钟），请先点左侧「刷新」更新汇率后再换算填入'); return; }
+      var fU=1/FX.usdt, fV=FX.vnd;
+      AL_DATA.forEach(function(r){ r.usdt=ucRoundNice(r.cny*fU); r.vnd=ucRoundNice(r.cny*fV); });
+      var d=new Date(); AL_LASTFILL={time:fx2(d.getHours())+':'+fx2(d.getMinutes()), usdt:FX.usdt.toFixed(2)};
+      alRender();
+    }
+    if (document.getElementById('leagueMatrixBody')) switchLeagueTab('overall', null);
+
+    // 玩法限额：6组 Tab 切换（删除状态列，列序 玩法ID|玩法名称|玩法最大货量）
+    var BETTYPE_GROUPS = {"handicap": {"label": "让球", "rows": [["BT1", "让球", "500,000"], ["BT35", "三项让球投注", "150,000"], ["BT179", "15分钟让球", "50,000"]]}, "ou": {"label": "大小", "rows": [["BT2", "大/小", "500,000"], ["BT160", "主队大/小", "200,000"], ["BT161", "客队大/小", "200,000"], ["BT31", "主队大/小", "100,000"], ["BT32", "客队大/小", "100,000"], ["BT180", "15分钟大/小", "50,000"], ["BT54", "5分钟大/小", "30,000"]]}, "corner": {"label": "角球", "rows": [["BT1×Corner", "角球让球", "100,000"], ["BT2×Corner", "角球大/小", "100,000"], ["BT3×Corner", "角球独赢", "80,000"], ["BT5×Corner", "角球单/双", "50,000"], ["BT86×Corner", "三项总角球", "50,000"]]}, "goal": {"label": "进球", "rows": [["BT3", "1x2", "300,000"], ["BT5", "单/双", "200,000"], ["BT7", "总进球", "150,000"], ["BT8", "双重机会", "200,000"], ["BT18", "双方球队皆进球", "150,000"], ["BT13", "净胜球数", "80,000"], ["BT39", "和局退款", "200,000"], ["BT78", "获胜球队", "100,000"], ["BT60", "主队总进球", "80,000"], ["BT61", "客队总进球", "80,000"], ["BT159", "第X粒入球球队", "50,000"], ["BT16", "主队准确入球数", "60,000"], ["BT17", "客队准确入球数", "60,000"], ["BT21", "进球球队", "100,000"], ["BT22", "主队零失球", "80,000"], ["BT23", "客队零失球", "80,000"], ["BT37", "第X粒入球球队", "50,000"], ["BT38", "最后入球球队", "50,000"], ["BT40", "主队获胜退款", "100,000"], ["BT41", "客队获胜退款", "100,000"], ["BT42", "主队单/双", "60,000"], ["BT43", "客队单/双", "60,000"], ["BT44", "主队零失球并获胜", "50,000"], ["BT45", "客队零失球并获胜", "50,000"]]}, "half": {"label": "半场", "rows": [["BT9", "半场/全场", "100,000"], ["BT19", "主队赢得任一半场", "80,000"], ["BT20", "客队赢得任一半场", "80,000"], ["BT24", "双半场大/小 (A)", "60,000"], ["BT25", "双半场大/小 (B)", "60,000"], ["BT26", "主队赢得双半场", "50,000"], ["BT27", "客队赢得双半场", "50,000"], ["BT28", "进球最多的半场", "80,000"], ["BT29", "主队进球最多的半场", "50,000"], ["BT30", "客队进球最多的半场", "50,000"], ["BT33", "主队双半场皆进球", "50,000"], ["BT34", "客队双半场皆进球", "50,000"], ["BT36", "比赛余时获胜球队", "50,000"], ["BT291", "最高得分半场", "50,000"]]}, "special": {"label": "特殊", "rows": [["BT6", "波胆", "100,000"], ["BT62", "波胆（多重投注）", "80,000"], ["BT158", "反波胆", "50,000"], ["BT14", "1X2 & 大/小", "50,000"], ["BT15", "1X2 & 双方球队皆进球", "50,000"], ["BT46", "大/小 & 双方球队皆进球", "50,000"], ["BT55", "第X球 & 1X2", "30,000"], ["BT63", "半场/全场 & 大/小", "30,000"], ["BT58", "DC & 双方球队皆进球", "30,000"], ["BT59", "DC & 大/小", "30,000"], ["BT66", "1X2 或 大/小 (1-6)", "30,000"], ["BT72", "1X2 或 双方皆进球 (1-3)", "30,000"], ["BT75", "1X2 或 任何零失球 (1-3)", "30,000"], ["BT47", "第X球进球时段", "30,000"], ["BT48", "15分钟赛果 1X2", "30,000"], ["BT50", "10分钟赛果 1X2", "30,000"], ["BT52", "5分钟赛果 1X2", "30,000"], ["BT273", "自定义盘口（透传）", "20,000"], ["BT372", "提前结算 1X2", "50,000"]]}};
+    // 玩法限额 · 多币种（横向 CNY/USDT/VND，接全局汇率）
+    var BT_DATA = {};
+    (function(){
+      Object.keys(BETTYPE_GROUPS).forEach(function(g){
+        BT_DATA[g] = BETTYPE_GROUPS[g].rows.map(function(r){
+          var cny = parseInt(String(r[2]).replace(/[^\d]/g,''),10)||0;
+          return { id:r[0], name:r[1], cny:cny, usdt:ucRoundNice(cny/7.2), vnd:ucRoundNice(cny*3500) };
+        });
+      });
+    })();
+    var BT_TAB='handicap', BT_LASTFILL=null;
+    function _btFmt(n){ return (Number(n)||0).toLocaleString('en-US'); }
+    function btSet(g,i,cur,v){ BT_DATA[g][i][cur]=parseInt(String(v).replace(/[^\d]/g,''),10)||0; }
+    function btUpdateNote(){
+      var n=document.getElementById('btNote'); if(!n) return;
+      if(BT_LASTFILL){ n.style.color='var(--accent-green)'; n.textContent='已按 '+BT_LASTFILL.time+' 汇率填入（当时 1 USDT='+BT_LASTFILL.usdt+'）'; }
+      else { n.style.color='var(--text-secondary)'; n.textContent='USDT / VND 尚未按汇率填入，当前为独立配置值'; }
+    }
+    function switchBettypeTab(g, el){
+      BT_TAB=g;
+      document.querySelectorAll('#bettypeTabs .lt-tab').forEach(function(b){ b.classList.toggle('active', el ? (b===el) : (b.dataset.bt===g)); });
+      var rows = BT_DATA[g]||[];
+      document.getElementById('bettypeBody').innerHTML = rows.map(function(r,i){
+        return '<tr>'
+          +'<td><span class="bet-type-id">'+r.id+'</span></td>'
+          +'<td><span class="bet-type-name">'+r.name+'</span></td>'
+          +'<td><input type="text" class="config-input bt-in" value="'+_btFmt(r.cny)+'" oninput="btSet(\''+g+'\','+i+',\'cny\',this.value)"></td>'
+          +'<td><input type="text" class="config-input bt-in" value="'+_btFmt(r.usdt)+'" oninput="btSet(\''+g+'\','+i+',\'usdt\',this.value)"></td>'
+          +'<td><input type="text" class="config-input bt-in" value="'+_btFmt(r.vnd)+'" oninput="btSet(\''+g+'\','+i+',\'vnd\',this.value)"></td>'
+          +'</tr>';
+      }).join('');
+      btUpdateNote();
+    }
+    function btFill(){
+      if(fxStale()){ alert('汇率不是最新（已超过1分钟），请先点左侧「刷新」更新汇率后再换算填入'); return; }
+      var fU=1/FX.usdt, fV=FX.vnd;
+      Object.keys(BT_DATA).forEach(function(g){
+        BT_DATA[g].forEach(function(r){ r.usdt=ucRoundNice(r.cny*fU); r.vnd=ucRoundNice(r.cny*fV); });
+      });
+      var d=new Date(); BT_LASTFILL={time:fx2(d.getHours())+':'+fx2(d.getMinutes()), usdt:FX.usdt.toFixed(2)};
+      switchBettypeTab(BT_TAB, null);
+    }
+    if (document.getElementById('bettypeBody')) switchBettypeTab('handicap', null);
+    if (document.getElementById('parlayBody')) plRender();
+    if (document.getElementById('alertBody')) alRender();
+    if (document.getElementById('ucBody')) ucRender();
+    fxRenderNav();
+    setInterval(function(){ if (document.getElementById('fxRates')) fxRenderNav(); }, 5000);
+
+
+  </script>
+  <div class="watermark"></div>
+<script>
+(function(){
+  if (document.getElementById('globalServerTime')) return;
+  var b=document.createElement('div');
+  b.id='globalServerTime';
+  b.title='服务器时间（UTC+8 北京时间），全局共同组件';
+  b.style.cssText='position:fixed;top:10px;right:16px;z-index:99999;font-size:12px;color:#c9d1d9;background:rgba(22,27,34,0.85);border:1px solid rgba(255,255,255,0.08);padding:4px 12px;border-radius:6px;font-family:monospace;pointer-events:none;';
+  function p(n){return String(n).padStart(2,'0');}
+  function tick(){var d=new Date();b.textContent='服务器时间 '+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds())+'（北京时间）';}
+  function init(){document.body.appendChild(b);tick();setInterval(tick,1000);}
+  if(document.body){init();}else{document.addEventListener('DOMContentLoaded',init);}
+})();
+</script>
+
+<style>
+/* 顶栏三组下拉（tms-nav-*，独立命名空间，全站统一） */
+.top-nav,.top-nav-menu{overflow:visible !important;}
+.tms-nav-item{display:inline-flex;align-items:center;gap:4px;padding:8px 13px;font-size:13px;color:#8b949e;text-decoration:none;cursor:pointer;border-radius:6px;white-space:nowrap;line-height:1;}
+.tms-nav-item:hover{color:#e6edf3;}
+.tms-nav-item.active{color:#58a6ff;}
+.tms-nav-group{position:relative;display:inline-flex;align-items:center;}
+.tms-nav-group.active>.tms-nav-trigger{color:#58a6ff;}
+.tms-nav-caret{font-size:10px;transition:transform .18s;}
+.tms-nav-group.open .tms-nav-caret{transform:rotate(180deg);}
+.tms-nav-dd{position:absolute;top:100%;left:0;margin-top:4px;min-width:150px;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:5px;opacity:0;visibility:hidden;transform:translateY(-4px);transition:.16s;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.45);}
+.tms-nav-group.open .tms-nav-dd{opacity:1;visibility:visible;transform:translateY(0);}
+.tms-nav-dd a{display:block;padding:8px 12px;font-size:13px;color:#8b949e;border-radius:6px;text-decoration:none;white-space:nowrap;}
+.tms-nav-dd a:hover{background:#21262d;color:#e6edf3;}
+.tms-nav-dd a.cur{color:#58a6ff;background:rgba(88,166,255,.12);}
+</style>
+<script>
+(function(){
+  var gs=[].slice.call(document.querySelectorAll('.tms-nav-group'));
+  gs.forEach(function(g){
+    var t=g.querySelector('.tms-nav-trigger'); if(!t) return;
+    t.addEventListener('click',function(e){e.stopPropagation();var o=g.classList.contains('open');gs.forEach(function(x){x.classList.remove('open');});if(!o)g.classList.add('open');});
+  });
+  document.addEventListener('click',function(){gs.forEach(function(x){x.classList.remove('open');});});
+})();
+</script>
+</body>
+
+</html>

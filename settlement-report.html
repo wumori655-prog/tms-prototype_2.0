@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>结算报表 · TMS</title>
+<style>
+  :root{--bg-primary:#0d1117;--bg-secondary:#161b22;--border:#30363d;--text-primary:#e6edf3;--text-secondary:#8b949e;--text-muted:#6e7681;--accent-blue:#58a6ff;--accent-orange:#d29922;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg-primary);color:var(--text-primary);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;}
+  /* 顶栏（与全站一致：tms-nav-* 三组下拉） */
+  .top-nav{display:flex;align-items:center;height:52px;background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:0 16px;gap:4px;position:relative;z-index:100;overflow:visible;}
+  .top-nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;margin-right:14px;}
+  .top-nav-logo-icon{width:24px;height:24px;border-radius:6px;background:var(--accent-blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;}
+  .top-nav-logo-text{color:var(--text-primary);font-weight:600;font-size:15px;}
+  .top-nav-menu{display:flex;align-items:center;gap:2px;overflow:visible;}
+  .top-nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+  .tms-nav-item{display:inline-flex;align-items:center;gap:4px;padding:8px 13px;font-size:13px;color:#8b949e;text-decoration:none;cursor:pointer;border-radius:6px;white-space:nowrap;line-height:1;}
+  .tms-nav-item:hover{color:#e6edf3;}
+  .tms-nav-item.active{color:#58a6ff;}
+  .tms-nav-group{position:relative;display:inline-flex;align-items:center;}
+  .tms-nav-group.active>.tms-nav-trigger{color:#58a6ff;}
+  .tms-nav-caret{font-size:10px;transition:transform .18s;}
+  .tms-nav-group.open .tms-nav-caret{transform:rotate(180deg);}
+  .tms-nav-dd{position:absolute;top:100%;left:0;margin-top:4px;min-width:150px;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:5px;opacity:0;visibility:hidden;transform:translateY(-4px);transition:.16s;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.45);}
+  .tms-nav-group.open .tms-nav-dd{opacity:1;visibility:visible;transform:translateY(0);}
+  .tms-nav-dd a{display:block;padding:8px 12px;font-size:13px;color:#8b949e;border-radius:6px;text-decoration:none;white-space:nowrap;}
+  .tms-nav-dd a:hover{background:#21262d;color:#e6edf3;}
+  .tms-nav-dd a.cur{color:#58a6ff;background:rgba(88,166,255,.12);}
+  /* 待重新规划 占位层 */
+  .placeholder-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 52px);padding:40px;text-align:center;}
+  .placeholder-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;padding:48px 56px;max-width:540px;}
+  .placeholder-icon{font-size:56px;margin-bottom:18px;opacity:.85;}
+  .placeholder-title{font-size:22px;font-weight:600;margin-bottom:12px;}
+  .placeholder-badge{display:inline-block;font-size:13px;color:var(--accent-orange);background:rgba(210,153,34,.15);border:1px solid rgba(210,153,34,.4);padding:4px 16px;border-radius:14px;margin-bottom:20px;font-weight:500;}
+  .placeholder-desc{font-size:14px;color:var(--text-secondary);line-height:1.9;}
+</style>
+</head>
+<body>
+  <nav class="top-nav">
+    <a class="top-nav-logo" href="trading-list.html"><span class="top-nav-logo-icon">T</span><span class="top-nav-logo-text">TMS</span></a>
+    <div class="top-nav-menu">
+      <a class="tms-nav-item" href="league-management.html">联赛管理</a>
+      <div class="tms-nav-group">
+        <span class="tms-nav-item tms-nav-trigger" data-group>操盘管理 <span class="tms-nav-caret">▾</span></span>
+        <div class="tms-nav-dd">
+          <a href="trading-list.html">操盘列表</a>
+          <a href="trading-detail.html">操盘详情</a>
+        </div>
+      </div>
+      <div class="tms-nav-group">
+        <span class="tms-nav-item tms-nav-trigger" data-group>风控管理 <span class="tms-nav-caret">▾</span></span>
+        <div class="tms-nav-dd">
+          <a href="risk-management.html">风控配置</a>
+          <a href="risk-log.html">风控日志</a>
+        </div>
+      </div>
+      <div class="tms-nav-group active">
+        <span class="tms-nav-item tms-nav-trigger" data-group>结算管理 <span class="tms-nav-caret">▾</span></span>
+        <div class="tms-nav-dd">
+          <a href="settlement-list.html">结算列表</a>
+          <a href="settlement-detail.html">结算详情</a>
+          <a href="settlement-report.html" class="cur">结算报表</a>
+        </div>
+      </div>
+    </div>
+    <div class="top-nav-right">
+      <div class="top-nav-logo-icon" style="background:var(--accent-blue);">张</div>
+    </div>
+  </nav>
+
+  <div class="placeholder-wrap">
+    <div class="placeholder-card">
+      <div class="placeholder-icon">📊</div>
+      <div class="placeholder-title">结算报表</div>
+      <div class="placeholder-badge">待重新规划</div>
+      <div class="placeholder-desc">本模块正在重新规划中，功能与页面结构稍后确定。<br>顶部导航可正常切换到其它模块。</div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  var gs=[].slice.call(document.querySelectorAll('.tms-nav-group'));
+  gs.forEach(function(g){
+    var t=g.querySelector('.tms-nav-trigger'); if(!t) return;
+    t.addEventListener('click',function(e){e.stopPropagation();var o=g.classList.contains('open');gs.forEach(function(x){x.classList.remove('open');});if(!o)g.classList.add('open');});
+  });
+  document.addEventListener('click',function(){gs.forEach(function(x){x.classList.remove('open');});});
+})();
+</script>
+</body>
+</html>

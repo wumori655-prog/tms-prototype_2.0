@@ -1,0 +1,3082 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>联赛管理 - 操盘系统</title>
+  <style>
+    /* ========== CSS 变量（与 trading-list.html 一致）========== */
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #1c2128;
+      --bg-hover: #21262d;
+      --bg-card: #1a1f26;
+      --border: #30363d;
+      --border-light: #3d444d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+      --accent-blue: #58a6ff;
+      --accent-cyan: #39d353;
+      --accent-green: #3fb950;
+      --accent-red: #f85149;
+      --accent-orange: #d29922;
+      --accent-purple: #a371f7;
+      --accent-yellow: #f0c000;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ========== 顶部导航栏（与操盘列表一致）========== */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      z-index: 100;
+    }
+
+    .top-nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-right: 24px;
+      border-right: 1px solid var(--border);
+      margin-right: 8px;
+    }
+
+    .top-nav-logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .top-nav-logo-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+    }
+
+    .top-nav-menu {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      overflow-x: auto;
+      gap: 4px;
+    }
+
+    .top-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.15s;
+      white-space: nowrap;
+      position: relative;
+      text-decoration: none;
+    }
+
+    .top-nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .top-nav-item.active {
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--accent-blue);
+    }
+
+    .top-nav-item-icon {
+      font-size: 14px;
+    }
+
+    .top-nav-item-arrow {
+      font-size: 8px;
+      color: var(--text-muted);
+      margin-left: 2px;
+    }
+
+    .top-nav-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 160px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      padding: 6px 0;
+      z-index: 200;
+      margin-top: 4px;
+    }
+
+    .top-nav-item:hover .top-nav-dropdown {
+      display: block;
+    }
+
+    .top-nav-subitem {
+      display: block;
+      padding: 8px 16px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+
+    .top-nav-subitem:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .top-nav-subitem.active {
+      color: var(--accent-blue);
+      background: rgba(88, 166, 255, 0.1);
+    }
+
+    .top-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
+      padding-left: 16px;
+      border-left: 1px solid var(--border);
+    }
+
+    .top-nav-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .top-nav-avatar {
+      width: 28px;
+      height: 28px;
+      background: var(--accent-purple);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .top-nav-username {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* ========== 主内容区 ========== */
+    .main-content {
+      padding: 68px 20px 20px 20px;
+    }
+
+    /* ========== 页面标题 ========== */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .page-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* ========== 筛选区域 ========== */
+    .filter-section {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .filter-input {
+      padding: 6px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 12px;
+      min-width: 200px;
+    }
+
+    .filter-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .filter-select {
+      padding: 6px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 12px;
+      min-width: 120px;
+      cursor: pointer;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    /* ========== 表格区域 ========== */
+    .table-section {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-tertiary);
+    }
+
+    .table-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .table-count {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-left: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    tr:hover {
+      background: var(--bg-hover);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ========== 联赛信息列 ========== */
+    .league-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .league-name {
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .league-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .league-id {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: ui-monospace, monospace;
+    }
+
+    .league-country {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* ========== 联赛等级 ========== */
+    .league-level {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .league-level.lv1, .league-level.lv2 {
+      background: rgba(248, 81, 73, 0.15);
+      color: var(--accent-red);
+    }
+
+    .league-level.lv3, .league-level.lv4 {
+      background: rgba(210, 153, 34, 0.15);
+      color: var(--accent-orange);
+    }
+
+    .league-level.lv5, .league-level.lv6 {
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--accent-blue);
+    }
+
+    .league-level.lv7, .league-level.lv8 {
+      background: rgba(163, 113, 247, 0.15);
+      color: var(--accent-purple);
+    }
+
+    .league-level.lv9, .league-level.lv10 {
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+    }
+
+    /* ========== 运动类型 ========== */
+    .sport-type {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sport-icon {
+      font-size: 16px;
+    }
+
+    .sport-name {
+      font-size: 12px;
+    }
+
+    /* ========== 布尔标签 ========== */
+    .bool-tag {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .bool-tag.yes {
+      background: rgba(57, 211, 83, 0.15);
+      color: var(--accent-green);
+    }
+
+    .bool-tag.no {
+      background: rgba(136, 146, 157, 0.15);
+      color: var(--text-muted);
+    }
+
+    /* ========== 配置摘要 ========== */
+    .config-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .config-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .config-label {
+      color: var(--text-muted);
+    }
+
+    .config-value {
+      color: var(--text-primary);
+    }
+
+    .config-value.highlight {
+      color: var(--accent-blue);
+    }
+
+    /* ========== 操盘手信息 ========== */
+    .trader-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .trader-phase-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .trader-phase-label {
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 2px;
+      width: 32px;
+      text-align: center;
+    }
+
+    .trader-phase-label.prematch {
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--accent-blue);
+    }
+
+    .trader-phase-label.live {
+      background: rgba(248, 81, 73, 0.15);
+      color: var(--accent-red);
+    }
+
+    .trader-name {
+      color: var(--text-primary);
+    }
+
+    .trader-unset {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* ========== 玩法启用状态 ========== */
+    .bettype-status {
+      font-size: 11px;
+    }
+
+    .bettype-status.all {
+      color: var(--accent-green);
+    }
+
+    .bettype-status.partial {
+      color: var(--accent-orange);
+    }
+
+    /* ========== 操作按钮 ========== */
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .act-btn {
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .act-btn.primary {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    .act-btn.primary:hover {
+      background: #4c9aed;
+    }
+
+    .act-btn.secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+
+    .act-btn.secondary:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    /* ========== 弹窗 ========== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 640px;
+      max-width: 90vw;
+      max-height: 85vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 20px;
+      padding: 4px;
+      border-radius: 4px;
+    }
+
+    .modal-close:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-tertiary);
+    }
+
+    /* ========== 表单样式 ========== */
+    .form-section {
+      margin-bottom: 20px;
+    }
+
+    .form-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 8px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 12px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .form-input:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 8px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .form-hint {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* ========== 单选按钮组 ========== */
+    .radio-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 12px;
+    }
+
+    .radio-item:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent-blue);
+    }
+
+    .radio-item:has(input:checked) {
+      background: rgba(88, 166, 255, 0.1);
+      border-color: var(--accent-blue);
+    }
+
+    .radio-item input[type="radio"] {
+      accent-color: var(--accent-blue);
+    }
+
+    /* ========== 开关组件 ========== */
+    .switch-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .switch.active {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .switch.active::after {
+      left: 20px;
+      background: #fff;
+    }
+
+    .switch-label {
+      font-size: 12px;
+    }
+
+    /* ========== 玩法启用列表 ========== */
+    .bettype-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .bettype-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 11px;
+    }
+
+    .bettype-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .bettype-item.checked {
+      background: rgba(57, 211, 83, 0.1);
+      border-color: var(--accent-green);
+    }
+
+    .bettype-checkbox {
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bettype-item.checked .bettype-checkbox {
+      background: var(--accent-green);
+      border-color: var(--accent-green);
+    }
+
+    .bettype-item.checked .bettype-checkbox::after {
+      content: '\2713';
+      color: #fff;
+      font-size: 9px;
+    }
+
+    .bettype-name {
+      flex: 1;
+    }
+
+    .bettype-id {
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+
+    /* 玩法启用：批量工具栏 / 按编号筛选 / 分组批量（Mori 2026-05-30）*/
+    .bettype-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; flex-wrap: wrap; margin-bottom: 8px;
+    }
+    .bettype-toolbar-left { font-size: 11px; color: var(--text-secondary); }
+    .bettype-toolbar-left b { color: var(--accent-green); }
+    .bettype-actions { display: flex; gap: 4px; }
+    .bettype-mini-btn {
+      font-size: 10px; padding: 2px 8px; border: 1px solid var(--border);
+      border-radius: 4px; background: var(--bg-tertiary); color: var(--text-secondary);
+      cursor: pointer; transition: all .15s; user-select: none;
+    }
+    .bettype-mini-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .bettype-numfilter {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .bettype-numfilter-label { font-size: 10px; color: var(--text-muted); }
+    .bettype-numchip {
+      font-size: 10px; padding: 2px 10px; border: 1px solid var(--border);
+      border-radius: 12px; background: var(--bg-tertiary); color: var(--text-secondary);
+      cursor: pointer; transition: all .15s; user-select: none;
+    }
+    .bettype-numchip:hover { background: var(--bg-hover); }
+    .bettype-numchip.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+    .bettype-numchip .cnt { opacity: .7; margin-left: 2px; }
+    .bettype-group-actions { margin-left: auto; display: flex; gap: 4px; }
+    .bettype-group-actions .bettype-mini-btn { padding: 1px 6px; }
+    .bettype-item.num-hidden { display: none !important; }
+
+    /* ========== 玩法分组标题 ========== */
+    .bettype-group-header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0 2px 0;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      margin-top: 4px;
+    }
+
+    .bettype-group-header:first-child {
+      margin-top: 0;
+    }
+
+    .bettype-group-badge {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
+    .bettype-group-badge.group-handicap {
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--accent-blue);
+      border: 1px solid rgba(88, 166, 255, 0.3);
+    }
+
+    .bettype-group-badge.group-ou {
+      background: rgba(63, 185, 80, 0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+
+    .bettype-group-badge.group-corner {
+      background: rgba(210, 153, 34, 0.15);
+      color: var(--accent-orange);
+      border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+
+    .bettype-group-badge.group-goal {
+      background: rgba(0, 180, 180, 0.15);
+      color: #00b4b4;
+      border: 1px solid rgba(0, 180, 180, 0.3);
+    }
+
+    .bettype-group-badge.group-half {
+      background: rgba(139, 148, 158, 0.15);
+      color: var(--text-secondary);
+      border: 1px solid rgba(139, 148, 158, 0.3);
+    }
+
+    .bettype-group-badge.group-special {
+      background: rgba(163, 113, 247, 0.15);
+      color: var(--accent-purple);
+      border: 1px solid rgba(163, 113, 247, 0.3);
+    }
+
+    /* ========== 操盘手分配区域 ========== */
+    .trader-assign-section {
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      padding: 12px 16px;
+    }
+
+    .trader-assign-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .trader-assign-row:not(:last-child) {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .trader-assign-label {
+      font-size: 11px;
+      width: 60px;
+      flex-shrink: 0;
+    }
+
+    .trader-assign-label.prematch {
+      color: var(--accent-blue);
+    }
+
+    .trader-assign-label.live {
+      color: var(--accent-red);
+    }
+
+    .trader-assign-select {
+      flex: 1;
+      padding: 6px 10px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-size: 11px;
+    }
+
+    /* ========== 提示信息 ========== */
+    .modal-info {
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+    }
+
+    .modal-info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 12px;
+    }
+
+    .modal-info-label {
+      color: var(--text-muted);
+    }
+
+    .modal-info-value {
+      font-weight: 500;
+    }
+
+    .modal-warning {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(210, 153, 34, 0.1);
+      border: 1px solid rgba(210, 153, 34, 0.3);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: var(--accent-orange);
+    }
+
+    .modal-tip {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(88, 166, 255, 0.1);
+      border: 1px solid rgba(88, 166, 255, 0.3);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: var(--accent-blue);
+    }
+
+    /* ========== 穿梭框样式 ========== */
+    .transfer-box {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .transfer-panel {
+      flex: 1;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      max-height: 360px;
+    }
+
+    .transfer-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .transfer-panel-count {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .transfer-panel-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .transfer-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 12px;
+    }
+
+    .transfer-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .transfer-item.selected {
+      background: rgba(88, 166, 255, 0.15);
+    }
+
+    .transfer-item-checkbox {
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .transfer-item.selected .transfer-item-checkbox {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .transfer-item.selected .transfer-item-checkbox::after {
+      content: '\2713';
+      color: #fff;
+      font-size: 9px;
+    }
+
+    .transfer-item-id {
+      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+      min-width: 32px;
+    }
+
+    .transfer-item-name {
+      flex: 1;
+    }
+
+    .transfer-quick-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .transfer-quick-btn {
+      padding: 4px 8px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .transfer-quick-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .transfer-operations {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 8px;
+    }
+
+    .transfer-trader-select {
+      padding: 8px 10px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 11px;
+      width: 120px;
+    }
+
+    .transfer-op-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      transition: all 0.15s;
+    }
+
+    .transfer-op-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .transfer-op-btn.primary {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: #fff;
+    }
+
+    .transfer-op-btn.primary:hover {
+      background: #4c9aed;
+    }
+
+    /* 已分配分组 */
+    .assigned-group {
+      margin-bottom: 12px;
+    }
+
+    .assigned-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .assigned-group-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--bg-secondary);
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+
+    .assigned-group-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #fff;
+    }
+
+    .assigned-group-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent-blue);
+    }
+
+    .assigned-group-count {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    .assigned-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px 6px 42px;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+
+    .assigned-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .assigned-item.selected {
+      background: rgba(248, 81, 73, 0.1);
+    }
+
+    .assigned-item-phase {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    .assigned-item-phase.prematch {
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--accent-blue);
+    }
+
+    .assigned-item-phase.live {
+      background: rgba(248, 81, 73, 0.15);
+      color: var(--accent-red);
+    }
+
+    /* 阶段切换Tab */
+    .phase-tabs-inline {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .phase-tab-inline {
+      padding: 8px 16px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .phase-tab-inline:hover {
+      background: var(--bg-hover);
+    }
+
+    .phase-tab-inline.active {
+      background: rgba(88, 166, 255, 0.15);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    .phase-tab-inline.live.active {
+      background: rgba(248, 81, 73, 0.15);
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    /* 分配汇总 */
+    .assign-summary {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+    }
+
+    .assign-summary-title {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .assign-summary-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .assign-summary-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: var(--bg-secondary);
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    .assign-summary-bettype {
+      color: var(--text-muted);
+    }
+
+    .assign-summary-trader {
+      color: var(--accent-blue);
+      font-weight: 500;
+    }
+
+    /* ========== 分页 ========== */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .pagination-info {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .pagination-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .page-btn {
+      padding: 6px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .page-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .page-btn.active {
+      background: var(--accent-blue);
+      color: #fff;
+      border-color: var(--accent-blue);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ========== 全局水印 ========== */
+    .watermark {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 99999;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 顶部导航栏 -->
+  <nav class="top-nav">
+    <a class="top-nav-logo" href="trading-list.html">
+      <span class="top-nav-logo-icon">T</span>
+      <span class="top-nav-logo-text">TMS</span>
+    </a>
+    <div class="top-nav-menu">
+      <a class="tms-nav-item active" href="league-management.html">联赛管理</a>
+      <div class="tms-nav-group">
+        <span class="tms-nav-item tms-nav-trigger" data-group>操盘管理 <span class="tms-nav-caret">▾</span></span>
+        <div class="tms-nav-dd">
+          <a href="trading-list.html">操盘列表</a>
+          <a href="trading-detail.html">操盘详情</a>
+        </div>
+      </div>
+      <div class="tms-nav-group">
+        <span class="tms-nav-item tms-nav-trigger" data-group>风控管理 <span class="tms-nav-caret">▾</span></span>
+        <div class="tms-nav-dd">
+          <a href="risk-management.html">风控配置</a>
+          <a href="risk-log.html">风控日志</a>
+        </div>
+      </div>
+      <div class="tms-nav-group">
+        <span class="tms-nav-item tms-nav-trigger" data-group>结算管理 <span class="tms-nav-caret">▾</span></span>
+        <div class="tms-nav-dd">
+          <a href="settlement-list.html">结算列表</a>
+          <a href="settlement-detail.html">结算详情</a>
+          <a href="settlement-report.html">结算报表</a>
+        </div>
+      </div>
+    </div>
+    <div class="top-nav-right">
+      <!-- 数据源状态 -->
+      <div style="display:flex;align-items:center;gap:6px;padding-right:12px;border-right:1px solid var(--border);">
+        <span style="width:6px;height:6px;background:var(--accent-green);border-radius:50%;"></span>
+        <span style="font-size:11px;color:var(--text-secondary);">IM</span>
+        <span style="font-size:10px;color:var(--text-muted);">23ms</span>
+      </div>
+      <div class="top-nav-user">
+        <div class="top-nav-avatar">张</div>
+        <span class="top-nav-username">张三</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主内容区 -->
+  <main class="main-content">
+    <!-- 页面标题 -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">联赛管理</h1>
+        <p class="page-subtitle">管理联赛级别的操盘参数配置，配置变更影响规则详见各配置项说明</p>
+      </div>
+      <div class="header-actions">
+        <button class="act-btn secondary" onclick="refreshList()">刷新</button>
+      </div>
+    </div>
+
+    <!-- 筛选区域 -->
+    <div class="filter-section">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label">搜索联赛</label>
+          <input type="text" class="filter-input" placeholder="搜索 联赛ID / 中文名 / 英文名 / 简称" oninput="filterLeagueRows(this.value)">
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">运动类型</label>
+          <select class="filter-select" onchange="filterBySport(this.value)">
+            <option value="">全部</option>
+            <option value="football">足球</option>
+            <option value="basketball">篮球</option>
+            <option value="esports">电竞</option>
+            <option value="tennis">网球</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">联赛等级</label>
+          <select class="filter-select" onchange="filterLeagueByLevel(this.value)">
+            <option value="">全部</option>
+            <option value="1">等级 1</option>
+            <option value="2">等级 2</option>
+            <option value="3">等级 3</option>
+            <option value="4">等级 4</option>
+            <option value="5">等级 5</option>
+            <option value="6">等级 6</option>
+            <option value="7">等级 7</option>
+            <option value="8">等级 8</option>
+            <option value="9">等级 9</option>
+            <option value="10">等级 10</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">跟随数据源</label>
+          <select class="filter-select" onchange="filterByFollowSource(this.value)">
+            <option value="">全部</option>
+            <option value="yes">是</option>
+            <option value="no">否</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 表格区域 -->
+    <div class="table-section">
+      <div class="table-header">
+        <div style="display: flex; align-items: center;">
+          <span class="table-title">联赛列表</span>
+          <span class="table-count">共 156 条</span>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 90px;">联赛ID</th>
+            <th style="width: 200px;">联赛</th>
+            <th style="width: 80px;">运动</th>
+            <th style="width: 60px;">等级</th>
+            <th style="width: 80px;">跟随数据源</th>
+            <th style="width: 80px;">串关支持</th>
+            <th style="width: 100px;">玩法启用</th>
+            <th style="width: 140px;">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 英超 -->
+          <tr data-search="lg001 英格兰超级联赛 premier league 英超">
+            <td><span class="league-id">LG001</span></td>
+            <td>
+              <div class="league-info">
+                <span class="league-name">英格兰超级联赛</span>
+              </div>
+            </td>
+            <td>
+              <div class="sport-type">
+                <span class="sport-icon">&#9917;</span>
+                <span class="sport-name">足球</span>
+              </div>
+            </td>
+            <td>
+              <span class="league-level lv1">1</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bettype-status all">全部启用</span>
+            </td>
+            
+            <td>
+              <div class="actions">
+                <button class="act-btn primary" onclick="openConfigModal('LG001', '英格兰超级联赛', '1')">配置</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 西甲 -->
+          <tr data-search="lg002 西班牙甲级联赛 la liga 西甲">
+            <td><span class="league-id">LG002</span></td>
+            <td>
+              <div class="league-info">
+                <span class="league-name">西班牙甲级联赛</span>
+              </div>
+            </td>
+            <td>
+              <div class="sport-type">
+                <span class="sport-icon">&#9917;</span>
+                <span class="sport-name">足球</span>
+              </div>
+            </td>
+            <td>
+              <span class="league-level lv1">1</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bettype-status all">全部启用</span>
+            </td>
+            
+            <td>
+              <div class="actions">
+                <button class="act-btn primary" onclick="openConfigModal('LG002', '西班牙甲级联赛', '1')">配置</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 德甲 -->
+          <tr data-search="lg003 德国甲级联赛 bundesliga 德甲">
+            <td><span class="league-id">LG003</span></td>
+            <td>
+              <div class="league-info">
+                <span class="league-name">德国甲级联赛</span>
+              </div>
+            </td>
+            <td>
+              <div class="sport-type">
+                <span class="sport-icon">&#9917;</span>
+                <span class="sport-name">足球</span>
+              </div>
+            </td>
+            <td>
+              <span class="league-level lv2">2</span>
+            </td>
+            <td>
+              <span class="bool-tag no">否</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bettype-status partial">18/20</span>
+            </td>
+            
+            <td>
+              <div class="actions">
+                <button class="act-btn primary" onclick="openConfigModal('LG003', '德国甲级联赛', '2')">配置</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 意甲 -->
+          <tr data-search="lg004 意大利甲级联赛 serie a 意甲">
+            <td><span class="league-id">LG004</span></td>
+            <td>
+              <div class="league-info">
+                <span class="league-name">意大利甲级联赛</span>
+              </div>
+            </td>
+            <td>
+              <div class="sport-type">
+                <span class="sport-icon">&#9917;</span>
+                <span class="sport-name">足球</span>
+              </div>
+            </td>
+            <td>
+              <span class="league-level lv3">3</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bool-tag no">否</span>
+            </td>
+            <td>
+              <span class="bettype-status all">全部启用</span>
+            </td>
+            
+            <td>
+              <div class="actions">
+                <button class="act-btn primary" onclick="openConfigModal('LG004', '意大利甲级联赛', '3')">配置</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 法甲 -->
+          <tr data-search="lg005 法国甲级联赛 ligue 1 法甲">
+            <td><span class="league-id">LG005</span></td>
+            <td>
+              <div class="league-info">
+                <span class="league-name">法国甲级联赛</span>
+              </div>
+            </td>
+            <td>
+              <div class="sport-type">
+                <span class="sport-icon">&#9917;</span>
+                <span class="sport-name">足球</span>
+              </div>
+            </td>
+            <td>
+              <span class="league-level lv4">4</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bettype-status all">全部启用</span>
+            </td>
+            
+            <td>
+              <div class="actions">
+                <button class="act-btn primary" onclick="openConfigModal('LG005', '法国甲级联赛', '4')">配置</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 荷甲 -->
+          <tr data-search="lg006 荷兰甲级联赛 eredivisie 荷甲">
+            <td><span class="league-id">LG006</span></td>
+            <td>
+              <div class="league-info">
+                <span class="league-name">荷兰甲级联赛</span>
+              </div>
+            </td>
+            <td>
+              <div class="sport-type">
+                <span class="sport-icon">&#9917;</span>
+                <span class="sport-name">足球</span>
+              </div>
+            </td>
+            <td>
+              <span class="league-level lv5">5</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bettype-status all">全部启用</span>
+            </td>
+            
+            <td>
+              <div class="actions">
+                <button class="act-btn primary" onclick="openConfigModal('LG006', '荷兰甲级联赛', '5')">配置</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 日职联 -->
+          <tr data-search="lg008 日本j联赛 j1 league j联赛">
+            <td><span class="league-id">LG008</span></td>
+            <td>
+              <div class="league-info">
+                <span class="league-name">日本J联赛</span>
+              </div>
+            </td>
+            <td>
+              <div class="sport-type">
+                <span class="sport-icon">&#9917;</span>
+                <span class="sport-name">足球</span>
+              </div>
+            </td>
+            <td>
+              <span class="league-level lv7">7</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bettype-status partial">15/20</span>
+            </td>
+            
+            <td>
+              <div class="actions">
+                <button class="act-btn primary" onclick="openConfigModal('LG008', '日本J联赛', '7')">配置</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- NBA 篮球 -->
+          <tr data-search="lg101 nba nba nba">
+            <td><span class="league-id">LG101</span></td>
+            <td>
+              <div class="league-info">
+                <span class="league-name">NBA</span>
+              </div>
+            </td>
+            <td>
+              <div class="sport-type">
+                <span class="sport-icon">&#127936;</span>
+                <span class="sport-name">篮球</span>
+              </div>
+            </td>
+            <td>
+              <span class="league-level lv1">1</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bettype-status all">全部启用</span>
+            </td>
+            
+            <td>
+              <div class="actions">
+                <button class="act-btn primary" onclick="openConfigModal('LG101', 'NBA', '1', 'basketball')">配置</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- CBA 篮球 -->
+          <tr data-search="lg102 cba cba cba">
+            <td><span class="league-id">LG102</span></td>
+            <td>
+              <div class="league-info">
+                <span class="league-name">CBA</span>
+              </div>
+            </td>
+            <td>
+              <div class="sport-type">
+                <span class="sport-icon">&#127936;</span>
+                <span class="sport-name">篮球</span>
+              </div>
+            </td>
+            <td>
+              <span class="league-level lv4">4</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bettype-status partial">6/8</span>
+            </td>
+            
+            <td>
+              <div class="actions">
+                <button class="act-btn primary" onclick="openConfigModal('LG102', 'CBA', '4', 'basketball')">配置</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 英雄联盟LPL 电竞 -->
+          <tr data-search="lg201 英雄联盟职业联赛 lpl lol pro league lpl">
+            <td><span class="league-id">LG201</span></td>
+            <td>
+              <div class="league-info">
+                <span class="league-name">英雄联盟职业联赛 LPL</span>
+              </div>
+            </td>
+            <td>
+              <div class="sport-type">
+                <span class="sport-icon">&#127918;</span>
+                <span class="sport-name">电竞</span>
+              </div>
+            </td>
+            <td>
+              <span class="league-level lv1">1</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bool-tag no">否</span>
+            </td>
+            <td>
+              <span class="bettype-status all">全部启用</span>
+            </td>
+            
+            <td>
+              <div class="actions">
+                <button class="act-btn primary" onclick="openConfigModal('LG201', '英雄联盟职业联赛 LPL', '1', 'esports')">配置</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- DOTA2 TI 电竞 -->
+          <tr data-search="lg202 dota2国际邀请赛 ti the international ti">
+            <td><span class="league-id">LG202</span></td>
+            <td>
+              <div class="league-info">
+                <span class="league-name">DOTA2国际邀请赛 TI</span>
+              </div>
+            </td>
+            <td>
+              <div class="sport-type">
+                <span class="sport-icon">&#127918;</span>
+                <span class="sport-name">电竞</span>
+              </div>
+            </td>
+            <td>
+              <span class="league-level lv2">2</span>
+            </td>
+            <td>
+              <span class="bool-tag yes">是</span>
+            </td>
+            <td>
+              <span class="bool-tag no">否</span>
+            </td>
+            <td>
+              <span class="bettype-status partial">5/6</span>
+            </td>
+            
+            <td>
+              <div class="actions">
+                <button class="act-btn primary" onclick="openConfigModal('LG202', 'DOTA2国际邀请赛 TI', '2', 'esports')">配置</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 分页 -->
+      <div class="pagination">
+        <div class="pagination-info">显示 1-11 共 186 条</div>
+        <div class="pagination-btns">
+          <button class="page-btn" disabled>上一页</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">...</button>
+          <button class="page-btn">23</button>
+          <button class="page-btn">下一页</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 联赛配置弹窗 -->
+  <div class="modal-overlay" id="configModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>联赛配置</span>
+          <span style="font-size: 12px; color: var(--text-muted); font-weight: 400;" id="modalLeagueName">- 英格兰超级联赛</span>
+        </div>
+        <button class="modal-close" onclick="closeConfigModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- 基本信息 -->
+        <div class="modal-info">
+          <div class="modal-info-row">
+            <span class="modal-info-label">联赛ID</span>
+            <span class="modal-info-value" id="modalLeagueId">LG001</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-label">运动类型</span>
+            <span class="modal-info-value">足球</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-label">国家/地区</span>
+            <span class="modal-info-value">英格兰</span>
+          </div>
+        </div>
+
+        <!-- 联赛等级 -->
+        <div class="form-section">
+          <div class="form-section-title">联赛等级</div>
+          <div class="form-group">
+            <label class="form-label">等级配置</label>
+            <select class="form-select" id="leagueLevelSelect">
+              <option value="default">未分配</option>
+              <option value="1">等级 1（顶级联赛）</option>
+              <option value="2">等级 2</option>
+              <option value="3">等级 3</option>
+              <option value="4">等级 4</option>
+              <option value="5">等级 5</option>
+              <option value="6">等级 6</option>
+              <option value="7">等级 7</option>
+              <option value="8">等级 8</option>
+              <option value="9">等级 9</option>
+              <option value="10">等级 10（低级联赛）</option>
+            </select>
+            <div class="form-hint">联赛等级影响：排序优先级（等级 1 最高 > 等级 10 最低）、限额配置（等级越高限额越高）、风控策略。等级与风控管理「联赛限额」的等级对应。</div>
+          </div>
+        </div>
+
+        <!-- 数据源配置 -->
+        <div class="form-section">
+          <div class="form-section-title">数据源配置</div>
+          <div class="form-group">
+            <label class="form-label">跟随数据源盘口状态</label>
+            <div class="switch-group">
+              <div class="switch active" id="followDataSourceSwitch" onclick="toggleSwitch(this)"></div>
+              <span class="switch-label">开启后，盘口状态自动跟随IM数据源</span>
+            </div>
+            <div class="form-hint">默认值为「是」（联赛管理配置）。<strong style="color: var(--accent-orange);">变更后立即生效</strong>，已上架赛事的盘口状态会立即与数据源同步。</div>
+          </div>
+        </div>
+
+        <!-- 串关配置 -->
+        <div class="form-section">
+          <div class="form-section-title">串关配置</div>
+                              <!-- #26 一般串关（迁自风控）· 本联赛；限额只读，风控管理编辑 -->
+          <div class="form-group">
+            <label class="form-label" style="cursor:pointer;user-select:none;" onclick="toggleGeneralCard()">一般串关 <span id="generalCardChevron" style="font-size:11px;color:var(--text-muted);font-weight:400;">▾ 收起</span></label>
+            <div id="generalParlayBody" style="display:block;margin-top:4px;">
+              <div class="form-hint" style="margin:4px 0 10px;">限额（单注 / 总货量）为只读，仅可在风控管理编辑；此处控制本联赛各类型的启用 / 停用。</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:10px;">
+                  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">2串1</span></div><div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--text-muted);">单注限额</div><div style="font-size:13px;color:var(--text-primary);margin-bottom:8px;">[风控管理参数]</div><div style="font-size:12px;color:var(--text-muted);">总货量上限</div><div style="font-size:13px;color:var(--text-primary);">[风控管理参数]</div></div><div style="display:flex;align-items:center;"><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">3串1</span></div><div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--text-muted);">单注限额</div><div style="font-size:13px;color:var(--text-primary);margin-bottom:8px;">[风控管理参数]</div><div style="font-size:12px;color:var(--text-muted);">总货量上限</div><div style="font-size:13px;color:var(--text-primary);">[风控管理参数]</div></div><div style="display:flex;align-items:center;"><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">4串1</span></div><div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--text-muted);">单注限额</div><div style="font-size:13px;color:var(--text-primary);margin-bottom:8px;">[风控管理参数]</div><div style="font-size:12px;color:var(--text-muted);">总货量上限</div><div style="font-size:13px;color:var(--text-primary);">[风控管理参数]</div></div><div style="display:flex;align-items:center;"><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">5串1</span></div><div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--text-muted);">单注限额</div><div style="font-size:13px;color:var(--text-primary);margin-bottom:8px;">[风控管理参数]</div><div style="font-size:12px;color:var(--text-muted);">总货量上限</div><div style="font-size:13px;color:var(--text-primary);">[风控管理参数]</div></div><div style="display:flex;align-items:center;"><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">6串1</span></div><div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--text-muted);">单注限额</div><div style="font-size:13px;color:var(--text-primary);margin-bottom:8px;">[风控管理参数]</div><div style="font-size:12px;color:var(--text-muted);">总货量上限</div><div style="font-size:13px;color:var(--text-primary);">[风控管理参数]</div></div><div style="display:flex;align-items:center;"><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">7串1</span></div><div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--text-muted);">单注限额</div><div style="font-size:13px;color:var(--text-primary);margin-bottom:8px;">[风控管理参数]</div><div style="font-size:12px;color:var(--text-muted);">总货量上限</div><div style="font-size:13px;color:var(--text-primary);">[风控管理参数]</div></div><div style="display:flex;align-items:center;"><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">8串1</span></div><div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--text-muted);">单注限额</div><div style="font-size:13px;color:var(--text-primary);margin-bottom:8px;">[风控管理参数]</div><div style="font-size:12px;color:var(--text-muted);">总货量上限</div><div style="font-size:13px;color:var(--text-primary);">[风控管理参数]</div></div><div style="display:flex;align-items:center;"><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">9串1</span></div><div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--text-muted);">单注限额</div><div style="font-size:13px;color:var(--text-primary);margin-bottom:8px;">[风控管理参数]</div><div style="font-size:12px;color:var(--text-muted);">总货量上限</div><div style="font-size:13px;color:var(--text-primary);">[风控管理参数]</div></div><div style="display:flex;align-items:center;"><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                  <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">10串1</span></div><div style="flex:1;min-width:0;"><div style="font-size:12px;color:var(--text-muted);">单注限额</div><div style="font-size:13px;color:var(--text-primary);margin-bottom:8px;">[风控管理参数]</div><div style="font-size:12px;color:var(--text-muted);">总货量上限</div><div style="font-size:13px;color:var(--text-primary);">[风控管理参数]</div></div><div style="display:flex;align-items:center;"><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="cursor:pointer;user-select:none;" onclick="toggleParlayCard()">复式串关 <span id="parlayCardChevron" style="font-size:11px;color:var(--text-muted);font-weight:400;">▾ 收起</span></label>
+            <div id="parlayConfigBody" style="display:block;margin-top:8px;">
+              <div class="form-hint" style="line-height:1.7;margin-bottom:10px;">💡 跟随规则：复式串关单注金额跟随其包含的最高 N串1 配置。总投入 = 单注 × 组合数。限额在风控管理配置。</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:10px;">
+                <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">3串4</span></div><div style="flex:1;min-width:0;"><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">2串1 *3</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">3串1 *1</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;white-space:nowrap;"><span style="font-size:12px;color:var(--text-secondary);">跟随 3串1</span><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">3串7</span></div><div style="flex:1;min-width:0;"><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">单关 *3</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">2串1 *3</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">3串1 *1</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;white-space:nowrap;"><span style="font-size:12px;color:var(--text-secondary);">跟随 3串1</span><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">4串11</span></div><div style="flex:1;min-width:0;"><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">2串1 *6</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">3串1 *4</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">4串1 *1</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;white-space:nowrap;"><span style="font-size:12px;color:var(--text-secondary);">跟随 4串1</span><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">4串15</span></div><div style="flex:1;min-width:0;"><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">单关 *4</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">2串1 *6</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">3串1 *4</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">4串1 *1</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;white-space:nowrap;"><span style="font-size:12px;color:var(--text-secondary);">跟随 4串1</span><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">5串26</span></div><div style="flex:1;min-width:0;"><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">2串1 *10</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">3串1 *10</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">4串1 *5</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">5串1 *1</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;white-space:nowrap;"><span style="font-size:12px;color:var(--text-secondary);">跟随 5串1</span><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">5串31</span></div><div style="flex:1;min-width:0;"><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">单关 *5</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">2串1 *10</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">3串1 *10</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">4串1 *5</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">5串1 *1</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;white-space:nowrap;"><span style="font-size:12px;color:var(--text-secondary);">跟随 5串1</span><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">6串57</span></div><div style="flex:1;min-width:0;"><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">2串1 *15</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">3串1 *20</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">4串1 *15</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">5串1 *6</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">6串1 *1</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;white-space:nowrap;"><span style="font-size:12px;color:var(--text-secondary);">跟随 6串1</span><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+                <div style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;box-sizing:border-box;height:100%;"><div style="min-width:50px;"><span style="background:rgba(163,113,247,0.15);color:#a371f7;padding:2px 9px;border-radius:4px;font-weight:600;font-size:13px;white-space:nowrap;">6串63</span></div><div style="flex:1;min-width:0;"><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">单关 *6</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">2串1 *15</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">3串1 *20</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">4串1 *15</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">5串1 *6</div><div style="font-size:13px;line-height:1.7;color:var(--text-primary);">6串1 *1</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;white-space:nowrap;"><span style="font-size:12px;color:var(--text-secondary);">跟随 6串1</span><div class="switch active" onclick="toggleSwitch(this)"></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 玩法启用列表 -->
+        <div class="form-section">
+          <div class="form-section-title">玩法启用列表 <span id="sportTypeLabel" style="font-size:11px;color:var(--text-muted);font-weight:400;">（足球）</span></div>
+          <div class="form-group">
+            <label class="form-label">启用的玩法类型</label>
+            <!-- 批量操作 + 按编号筛选(Mori 2026-05-30):工具栏对"当前显示的运动类型网格"生效 -->
+            <div class="bettype-toolbar">
+              <div class="bettype-toolbar-left">已启用 <b id="bettypeEnabledCount">0</b> / <span id="bettypeTotalCount">0</span> 个玩法</div>
+              <div class="bettype-actions">
+                <span class="bettype-mini-btn" onclick="bettypeBulk('all')">全部启用</span>
+                <span class="bettype-mini-btn" onclick="bettypeBulk('none')">全部禁用</span>
+                <span class="bettype-mini-btn" onclick="bettypeBulk('invert')">反选</span>
+              </div>
+            </div>
+            <div class="bettype-numfilter" id="bettypeNumFilter">
+              <span class="bettype-numfilter-label">按编号筛选:</span>
+              <span class="bettype-numchip active" data-range="all" onclick="filterBettypeByNum(this,'all')">全部 <span class="cnt"></span></span>
+              <span class="bettype-numchip" data-range="1-50" onclick="filterBettypeByNum(this,'1-50')">BT1-50 <span class="cnt"></span></span>
+              <span class="bettype-numchip" data-range="51-100" onclick="filterBettypeByNum(this,'51-100')">BT51-100 <span class="cnt"></span></span>
+              <span class="bettype-numchip" data-range="101-200" onclick="filterBettypeByNum(this,'101-200')">BT101-200 <span class="cnt"></span></span>
+              <span class="bettype-numchip" data-range="200+" onclick="filterBettypeByNum(this,'200+')">BT200+ <span class="cnt"></span></span>
+              <span class="bettype-numchip" data-range="other" onclick="filterBettypeByNum(this,'other')">其他 <span class="cnt"></span></span>
+            </div>
+            <!-- 足球玩法 -->
+            <div class="bettype-grid" id="bettypeGridFootball">
+              <!-- 让球组（3种） -->
+              <div class="bettype-group-header">
+                <span class="bettype-group-badge group-handicap">让球</span>
+                <span>让球组（3种）</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="handicap">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">让球</span>
+                <span class="bettype-id">BT1</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="handicap">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">三项让球投注</span>
+                <span class="bettype-id">BT35</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="handicap">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">15分钟让球</span>
+                <span class="bettype-id">BT179</span>
+              </div>
+              <!-- 大小组（7种） -->
+              <div class="bettype-group-header">
+                <span class="bettype-group-badge group-ou">大小</span>
+                <span>大小组（7种）</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="ou">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">大/小</span>
+                <span class="bettype-id">BT2</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="ou">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">主队大/小</span>
+                <span class="bettype-id">BT160</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="ou">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">客队大/小</span>
+                <span class="bettype-id">BT161</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="ou">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">主队大/小</span>
+                <span class="bettype-id">BT31</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="ou">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">客队大/小</span>
+                <span class="bettype-id">BT32</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="ou">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">15分钟大/小</span>
+                <span class="bettype-id">BT180</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="ou">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">5分钟大/小</span>
+                <span class="bettype-id">BT54</span>
+              </div>
+              <!-- 角球组（EventGroupType=2整体归入） -->
+              <div class="bettype-group-header">
+                <span class="bettype-group-badge group-corner">角球</span>
+                <span>角球组（EventGroupType=2整体归入）</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="corner">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">角球全量归入</span>
+                <span class="bettype-id">EGT=2</span>
+              </div>
+              <!-- 进球组（24种） -->
+              <div class="bettype-group-header">
+                <span class="bettype-group-badge group-goal">进球</span>
+                <span>进球组（24种）</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1x2</span>
+                <span class="bettype-id">BT3</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">单/双</span>
+                <span class="bettype-id">BT5</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">总进球</span>
+                <span class="bettype-id">BT7</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">双重机会</span>
+                <span class="bettype-id">BT8</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">净胜球数</span>
+                <span class="bettype-id">BT13</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">主队准确入球数</span>
+                <span class="bettype-id">BT16</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">客队准确入球数</span>
+                <span class="bettype-id">BT17</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">双方球队皆进球</span>
+                <span class="bettype-id">BT18</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">进球球队</span>
+                <span class="bettype-id">BT21</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">主队零失球</span>
+                <span class="bettype-id">BT22</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">客队零失球</span>
+                <span class="bettype-id">BT23</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">第X粒入球球队</span>
+                <span class="bettype-id">BT37</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">最后入球球队</span>
+                <span class="bettype-id">BT38</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">和局退款</span>
+                <span class="bettype-id">BT39</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">主队获胜退款</span>
+                <span class="bettype-id">BT40</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">客队获胜退款</span>
+                <span class="bettype-id">BT41</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">主队单/双</span>
+                <span class="bettype-id">BT42</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">客队单/双</span>
+                <span class="bettype-id">BT43</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">主队零失球并获胜</span>
+                <span class="bettype-id">BT44</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">客队零失球并获胜</span>
+                <span class="bettype-id">BT45</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">主队总进球</span>
+                <span class="bettype-id">BT60</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">客队总进球</span>
+                <span class="bettype-id">BT61</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">获胜球队</span>
+                <span class="bettype-id">BT78</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="goal">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">第X粒入球球队</span>
+                <span class="bettype-id">BT159</span>
+              </div>
+              <!-- 半场组（14种） -->
+              <div class="bettype-group-header">
+                <span class="bettype-group-badge group-half">半场</span>
+                <span>半场组（14种）</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">半场/全场</span>
+                <span class="bettype-id">BT9</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">主队赢得任一半场</span>
+                <span class="bettype-id">BT19</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">客队赢得任一半场</span>
+                <span class="bettype-id">BT20</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">双半场大/小(A)</span>
+                <span class="bettype-id">BT24</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">双半场大/小(B)</span>
+                <span class="bettype-id">BT25</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">主队赢得双半场</span>
+                <span class="bettype-id">BT26</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">客队赢得双半场</span>
+                <span class="bettype-id">BT27</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">进球最多的半场</span>
+                <span class="bettype-id">BT28</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">主队进球最多半场</span>
+                <span class="bettype-id">BT29</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">客队进球最多半场</span>
+                <span class="bettype-id">BT30</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">主队双半场皆进球</span>
+                <span class="bettype-id">BT33</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">客队双半场皆进球</span>
+                <span class="bettype-id">BT34</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">比赛余时获胜球队</span>
+                <span class="bettype-id">BT36</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="half">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">最高得分半场</span>
+                <span class="bettype-id">BT291</span>
+              </div>
+              <!-- 特殊组（38种） -->
+              <div class="bettype-group-header">
+                <span class="bettype-group-badge group-special">特殊</span>
+                <span>特殊组（38种）</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">波胆</span>
+                <span class="bettype-id">BT6</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">波胆（多重）</span>
+                <span class="bettype-id">BT62</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">反波胆</span>
+                <span class="bettype-id">BT158</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 & 大/小</span>
+                <span class="bettype-id">BT14</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 & 双方皆进球</span>
+                <span class="bettype-id">BT15</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">大/小 & 双方皆进球</span>
+                <span class="bettype-id">BT46</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">第X球 & 1X2</span>
+                <span class="bettype-id">BT55</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">DC & 上半场双方皆进球</span>
+                <span class="bettype-id">BT56</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">DC & 下半场双方皆进球</span>
+                <span class="bettype-id">BT57</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">DC & 双方球队皆进球</span>
+                <span class="bettype-id">BT58</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">DC & 大/小</span>
+                <span class="bettype-id">BT59</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">半场/全场 & 大/小</span>
+                <span class="bettype-id">BT63</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">半场/全场 & 上半场大/小</span>
+                <span class="bettype-id">BT64</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">半场/全场 & 总进球</span>
+                <span class="bettype-id">BT65</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 或 大/小(1)</span>
+                <span class="bettype-id">BT66</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 或 大/小(2)</span>
+                <span class="bettype-id">BT67</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 或 大/小(3)</span>
+                <span class="bettype-id">BT68</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 或 大/小(4)</span>
+                <span class="bettype-id">BT69</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 或 大/小(5)</span>
+                <span class="bettype-id">BT70</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 或 大/小(6)</span>
+                <span class="bettype-id">BT71</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 或 双方皆进球(1)</span>
+                <span class="bettype-id">BT72</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 或 双方皆进球(2)</span>
+                <span class="bettype-id">BT73</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 或 双方皆进球(3)</span>
+                <span class="bettype-id">BT74</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 或 任何零失球(1)</span>
+                <span class="bettype-id">BT75</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 或 任何零失球(2)</span>
+                <span class="bettype-id">BT76</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">1X2 或 任何零失球(3)</span>
+                <span class="bettype-id">BT77</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">获胜球队(D-1)</span>
+                <span class="bettype-id">BT79</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">获胜球队(D-2)</span>
+                <span class="bettype-id">BT80</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">三项总角球</span>
+                <span class="bettype-id">BT86</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">第X球进球时段</span>
+                <span class="bettype-id">BT47</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">15分钟赛果 1X2</span>
+                <span class="bettype-id">BT48</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">15分钟赛果 第X球</span>
+                <span class="bettype-id">BT49</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">10分钟赛果 1X2</span>
+                <span class="bettype-id">BT50</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">10分钟赛果 第X球</span>
+                <span class="bettype-id">BT51</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">5分钟赛果 1X2</span>
+                <span class="bettype-id">BT52</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">5分钟赛果 第X球</span>
+                <span class="bettype-id">BT53</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">自定义盘口（透传）</span>
+                <span class="bettype-id">BT273</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)" data-group="special">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">提前结算 1X2</span>
+                <span class="bettype-id">BT372</span>
+              </div>
+            </div>
+<div class="bettype-grid" id="bettypeGridBasketball" style="display:none;">
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">让分</span>
+                <span class="bettype-id">BT201</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">大小</span>
+                <span class="bettype-id">BT202</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">独赢</span>
+                <span class="bettype-id">BT203</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">单双</span>
+                <span class="bettype-id">BT204</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">上半场让分</span>
+                <span class="bettype-id">BT205</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">上半场大小</span>
+                <span class="bettype-id">BT206</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">节得分</span>
+                <span class="bettype-id">BT207</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">总得分</span>
+                <span class="bettype-id">BT208</span>
+              </div>
+            </div>
+            <!-- 电竞玩法 -->
+            <div class="bettype-grid" id="bettypeGridEsports" style="display:none;">
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">让分</span>
+                <span class="bettype-id">BT301</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">大小</span>
+                <span class="bettype-id">BT302</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">独赢</span>
+                <span class="bettype-id">BT303</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">地图胜负</span>
+                <span class="bettype-id">BT304</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">击杀大小</span>
+                <span class="bettype-id">BT305</span>
+              </div>
+              <div class="bettype-item checked" onclick="toggleBettype(this)">
+                <div class="bettype-checkbox"></div>
+                <span class="bettype-name">首杀</span>
+                <span class="bettype-id">BT306</span>
+              </div>
+            </div>
+            <div class="form-hint">默认值为「全部启用」（联赛管理配置）。变更仅对新上架赛事生效。</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="act-btn secondary" onclick="closeConfigModal()">取消</button>
+        <button class="act-btn primary" onclick="saveConfig()">保存配置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- #22 同步新玩法到已开赛事 确认弹窗 -->
+  <div class="modal-overlay" id="syncConfirmModal" onclick="if(event.target.id==='syncConfirmModal') closeSyncConfirm()">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-header">
+        <div class="modal-title">⚠️ 同步新玩法到已开赛事</div>
+        <button class="modal-close" onclick="closeSyncConfirm()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-primary);font-size:14px;line-height:1.6;margin:0 0 10px;">检测到 <strong id="syncAffectedCount" style="color:var(--accent-orange);">3</strong> 场已开出赛事缺少本次新增的玩法。是否把新玩法同步下发到这些赛事（早盘 / 滚球）？</p>
+        <p style="color:var(--text-muted);font-size:12px;margin:0;">选「否」只保存模版，不影响已开赛事。</p>
+      </div>
+      <div class="modal-footer">
+        <button class="act-btn secondary" onclick="confirmSync(false)">否，只存模版</button>
+        <button class="act-btn primary" onclick="confirmSync(true)">是，同步下发</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    // Toast 通知系统
+    // ============================================================
+    function showToast(type, title, msg) {
+      let container = document.getElementById('toastContainer');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;';
+        document.body.appendChild(container);
+      }
+      const colors = {
+        success: { bg: 'rgba(63,185,80,0.15)', border: 'rgba(63,185,80,0.4)', text: '#3FB950' },
+        info: { bg: 'rgba(88,166,255,0.15)', border: 'rgba(88,166,255,0.4)', text: '#58A6FF' },
+        warning: { bg: 'rgba(210,153,34,0.15)', border: 'rgba(210,153,34,0.4)', text: '#D29922' },
+        error: { bg: 'rgba(248,81,73,0.15)', border: 'rgba(248,81,73,0.4)', text: '#F85149' }
+      };
+      const c = colors[type] || colors.info;
+      const div = document.createElement('div');
+      div.style.cssText = `min-width:280px;max-width:380px;padding:12px 16px;background:#1a1a1a;border:1px solid ${c.border};border-left:3px solid ${c.text};border-radius:6px;color:#E6EDF3;box-shadow:0 4px 12px rgba(0,0,0,0.4);animation:slideIn 0.3s ease;`;
+      div.innerHTML = `<div style="font-size:13px;font-weight:500;color:${c.text};margin-bottom:4px;">${title}</div><div style="font-size:12px;color:#8B949E;">${msg}</div>`;
+      container.appendChild(div);
+      setTimeout(() => { div.style.opacity = '0'; div.style.transition = 'opacity 0.3s'; setTimeout(() => div.remove(), 300); }, 3000);
+    }
+    
+    // ============================================================
+    // 筛选交互函数
+    // ============================================================
+    const sportTypeMap = { '': '全部', 'football': '足球', 'basketball': '篮球', 'esports': '电竞', 'tennis': '网球' };
+    
+    function filterBySport(value) {
+      const label = sportTypeMap[value] || value;
+      showToast('success', '筛选已应用', `运动类型: ${label}`);
+    }
+    
+    function filterLeagueByLevel(value) {
+      const text = value === '' ? '已显示全部联赛等级' : `筛选联赛等级: 等级 ${value}`;
+      showToast('success', '筛选已应用', text);
+    }
+    
+    function filterByFollowSource(value) {
+      const labels = { '': '全部', 'yes': '是', 'no': '否' };
+      showToast('success', '筛选已应用', `跟随数据源: ${labels[value] || value}`);
+    }
+    
+
+    // 联赛搜索 - 防抖
+    let leagueSearchTimer = null;
+    function handleLeagueSearch(value) {
+      clearTimeout(leagueSearchTimer);
+      if (value.trim() === '') return;
+      leagueSearchTimer = setTimeout(() => applyLeagueSearch(value), 800);
+    }
+    function applyLeagueSearch(value) {
+      if (value.trim() === '') return;
+      showToast('success', '搜索已应用', `关键词: ${value}`);
+    }
+    // 方案二：一个框搜 联赛ID / 中文名 / 英文名 / 简称（实时筛选）
+    function filterLeagueRows(q){
+      q=(q||'').trim().toLowerCase();
+      var trs=document.querySelectorAll('.table-section tbody tr');
+      trs.forEach(function(tr){
+        var hay=tr.getAttribute('data-search')||'';
+        tr.style.display=(q===''||hay.indexOf(q)>=0)?'':'none';
+      });
+    }
+
+    // 运动类型名称映射
+    const sportTypeNames = {
+      'football': '足球',
+      'basketball': '篮球',
+      'esports': '电竞'
+    };
+
+    // 打开配置弹窗
+    function openConfigModal(leagueId, leagueName, level, sportType = 'football') {
+      document.getElementById('modalLeagueId').textContent = leagueId;
+      document.getElementById('modalLeagueName').textContent = '- ' + leagueName;
+
+      // 设置联赛等级
+      const levelSelect = document.getElementById('leagueLevelSelect');
+      if (levelSelect) {
+        levelSelect.value = level;
+      }
+
+      // 切换运动类型对应的玩法列表
+      document.getElementById('sportTypeLabel').textContent = '（' + (sportTypeNames[sportType] || '足球') + '）';
+      document.getElementById('bettypeGridFootball').style.display = sportType === 'football' ? 'grid' : 'none';
+      document.getElementById('bettypeGridBasketball').style.display = sportType === 'basketball' ? 'grid' : 'none';
+      document.getElementById('bettypeGridEsports').style.display = sportType === 'esports' ? 'grid' : 'none';
+
+      setupBettypePanel();
+      document.getElementById('configModal').classList.add('active');
+    }
+
+    // 关盘配置弹窗
+    function closeConfigModal() {
+      document.getElementById('configModal').classList.remove('active');
+    }
+
+    // 切换开关
+    function toggleSwitch(el) {
+      el.classList.toggle('active');
+    }
+
+    // #26 复式串关 折叠/展开
+    function toggleParlayCard() {
+      var body=document.getElementById('parlayConfigBody');
+      var chev=document.getElementById('parlayCardChevron');
+      if(!body) return;
+      var hidden=body.style.display==='none';
+      body.style.display=hidden?'':'none';
+      if(chev) chev.textContent=hidden?'▾ 收起':'▸ 展开';
+    }
+
+    // #26 一般串关 折叠/展开
+    function toggleGeneralCard() {
+      var body=document.getElementById('generalParlayBody');
+      var chev=document.getElementById('generalCardChevron');
+      if(!body) return;
+      var hidden=body.style.display==='none';
+      body.style.display=hidden?'':'none';
+      if(chev) chev.textContent=hidden?'▾ 收起':'▸ 展开';
+    }
+
+    // 切换玩法启用
+    function toggleBettype(el) {
+      el.classList.toggle('checked');
+      updateBettypeCount();
+    }
+
+    // ===== 玩法启用：批量 / 按编号筛选 / 分组批量（Mori 2026-05-30）=====
+    function _visibleBettypeGrid() {
+      return [...document.querySelectorAll('.bettype-grid')].find(g => g.style.display !== 'none') || document.getElementById('bettypeGridFootball');
+    }
+    function _btNum(item) {
+      const id = (item.querySelector('.bettype-id')?.textContent || '').trim();
+      const m = id.match(/BT(\d+)/i);
+      return m ? parseInt(m[1], 10) : null;
+    }
+    function _inRange(n, range) {
+      if (range === 'all') return true;
+      if (range === 'other') return n === null;
+      if (n === null) return false;
+      if (range === '1-50') return n >= 1 && n <= 50;
+      if (range === '51-100') return n >= 51 && n <= 100;
+      if (range === '101-200') return n >= 101 && n <= 200;
+      if (range === '200+') return n > 200;
+      return true;
+    }
+    function _activeBettypeItems() {
+      return [...(_visibleBettypeGrid()?.querySelectorAll('.bettype-item') || [])].filter(i => !i.classList.contains('num-hidden'));
+    }
+    // 顶部批量：对"当前可见(按编号筛选后)"的玩法生效
+    function bettypeBulk(mode) {
+      _activeBettypeItems().forEach(i => {
+        if (mode === 'all') i.classList.add('checked');
+        else if (mode === 'none') i.classList.remove('checked');
+        else if (mode === 'invert') i.classList.toggle('checked');
+      });
+      updateBettypeCount();
+    }
+    // 分组批量：对某分组(data-group)当前可见项生效
+    function bettypeGroup(group, mode) {
+      [..._visibleBettypeGrid().querySelectorAll('.bettype-item[data-group="' + group + '"]')].forEach(i => {
+        if (i.classList.contains('num-hidden')) return;
+        if (mode === 'all') i.classList.add('checked');
+        else if (mode === 'none') i.classList.remove('checked');
+        else if (mode === 'invert') i.classList.toggle('checked');
+      });
+      updateBettypeCount();
+    }
+    // 按编号筛选（仅控制显隐，不改启用态）
+    function filterBettypeByNum(chip, range) {
+      document.querySelectorAll('#bettypeNumFilter .bettype-numchip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const grid = _visibleBettypeGrid();
+      grid.querySelectorAll('.bettype-item').forEach(i => i.classList.toggle('num-hidden', !_inRange(_btNum(i), range)));
+      grid.querySelectorAll('.bettype-group-header').forEach(h => {
+        let n = h.nextElementSibling, any = false;
+        while (n && !n.classList.contains('bettype-group-header')) {
+          if (n.classList.contains('bettype-item') && !n.classList.contains('num-hidden')) { any = true; break; }
+          n = n.nextElementSibling;
+        }
+        h.style.display = any ? '' : 'none';
+      });
+      updateBettypeCount();
+    }
+    // 实时计数 + 各编号段数量
+    function updateBettypeCount() {
+      const grid = _visibleBettypeGrid(); if (!grid) return;
+      const items = [...grid.querySelectorAll('.bettype-item')];
+      const enabled = items.filter(i => i.classList.contains('checked')).length;
+      const ec = document.getElementById('bettypeEnabledCount'); if (ec) ec.textContent = enabled;
+      const tc = document.getElementById('bettypeTotalCount'); if (tc) tc.textContent = items.length;
+      const ranges = { '1-50': 0, '51-100': 0, '101-200': 0, '200+': 0, 'other': 0 };
+      items.forEach(i => { const n = _btNum(i); Object.keys(ranges).forEach(r => { if (_inRange(n, r)) ranges[r]++; }); });
+      ranges['all'] = items.length;
+      document.querySelectorAll('#bettypeNumFilter .bettype-numchip').forEach(c => {
+        const cnt = c.querySelector('.cnt'); if (cnt) cnt.textContent = ranges[c.dataset.range] ?? '';
+      });
+    }
+    // 向各分组头注入「全选/全不选/反选」+ 初始化（打开弹窗/切换运动类型时调用）
+    function setupBettypePanel() {
+      const grid = _visibleBettypeGrid(); if (!grid) return;
+      grid.querySelectorAll('.bettype-group-header').forEach(h => {
+        if (h.querySelector('.bettype-group-actions')) return;
+        let n = h.nextElementSibling, group = null;
+        while (n && !n.classList.contains('bettype-group-header')) {
+          if (n.classList.contains('bettype-item')) { group = n.dataset.group; break; }
+          n = n.nextElementSibling;
+        }
+        if (!group) return;
+        const box = document.createElement('span');
+        box.className = 'bettype-group-actions';
+        box.innerHTML =
+          '<span class="bettype-mini-btn" onclick="bettypeGroup(\'' + group + '\',\'all\')">全选</span>' +
+          '<span class="bettype-mini-btn" onclick="bettypeGroup(\'' + group + '\',\'none\')">全不选</span>' +
+          '<span class="bettype-mini-btn" onclick="bettypeGroup(\'' + group + '\',\'invert\')">反选</span>';
+        h.appendChild(box);
+      });
+      document.querySelectorAll('#bettypeNumFilter .bettype-numchip').forEach(c => c.classList.toggle('active', c.dataset.range === 'all'));
+      grid.querySelectorAll('.bettype-item').forEach(i => i.classList.remove('num-hidden'));
+      grid.querySelectorAll('.bettype-group-header').forEach(h => h.style.display = '');
+      updateBettypeCount();
+    }
+
+    // 保存配置
+    function saveConfig() {
+      // #22：保存时检测已开赛事是否缺少本次新增玩法；有则弹同步确认，无则直接保存
+      var affected = getAffectedOpenMatches();
+      if (affected > 0) {
+        document.getElementById('syncAffectedCount').textContent = affected;
+        document.getElementById('syncConfirmModal').classList.add('active');
+      } else {
+        showToast('success', '保存成功', '配置已保存');
+        closeConfigModal();
+      }
+    }
+    // #22 原型演示：模拟检测到缺新增玩法的已开赛事数（真实实现由后端按当前已开赛事比对）
+    function getAffectedOpenMatches() {
+      return 3;
+    }
+    function closeSyncConfirm() {
+      document.getElementById('syncConfirmModal').classList.remove('active');
+    }
+    function confirmSync(doSync) {
+      var n = document.getElementById('syncAffectedCount').textContent;
+      closeSyncConfirm();
+      if (doSync) {
+        showToast('success', '已同步', '新玩法已下发到 ' + n + ' 场已开赛事（早盘 / 滚球）');
+      } else {
+        showToast('info', '已保存模版', '未同步到已开赛事');
+      }
+      closeConfigModal();
+    }
+
+    // 刷新列表
+    function refreshList() {
+      alert('列表已刷新（原型演示）');
+    }
+
+    // 点击弹窗外部关盘
+    document.getElementById('configModal').addEventListener('click', function (e) {
+      if (e.target === this) {
+        closeConfigModal();
+      }
+    });
+
+    // ESC 键关闭弹窗
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        closeConfigModal();
+        closeTraderModal();
+      }
+    });
+
+    // 打开操盘手设置弹窗
+    // 关盘操盘手设置弹窗
+    // 切换阶段Tab
+    function switchTransferPhase(el, phase) {
+      document.querySelectorAll('.phase-tab-inline').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      el.classList.add('active');
+    }
+
+    // 切换穿梭框项目选中状态
+    function toggleTransferItem(el) {
+      el.classList.toggle('selected');
+    }
+
+    // 切换已分配项目选中状态
+    function toggleAssignedItem(el) {
+      el.classList.toggle('selected');
+    }
+
+    // 快速选择玩法分组（6组）
+    function selectBetTypeGroup(group) {
+      const items = document.querySelectorAll('.transfer-panel-list .transfer-item');
+      items.forEach(item => {
+        if (group === 'all') {
+          item.classList.add('selected');
+        } else if (group === 'none') {
+          item.classList.remove('selected');
+        } else {
+          // 按 data-group 属性选择
+          if (item.dataset.group === group) {
+            item.classList.add('selected');
+          }
+        }
+      });
+    }
+
+    // 分配选中的玩法
+    function assignSelectedBetTypes() {
+      const trader = document.getElementById('transferTraderSelect').value;
+      if (!trader) {
+        alert('请先选择操盘手');
+        return;
+      }
+      alert('已将选中玩法分配给操盘手（原型演示）');
+    }
+
+    // 移除选中的已分配玩法
+    function removeSelectedAssigned() {
+      alert('已移除选中的分配（原型演示）');
+    }
+
+    // ========== 全局水印 ==========
+    (function () {
+      const WATERMARK_CONFIG = {
+        text: '仅供内部使用 telegram：nnns1992',
+        tileWidth: 520,
+        tileHeight: 360,
+        rotateDeg: -24,
+        fontSize: 16,
+        lineGap: 10,
+        refreshEachMinute: true
+      };
+
+      function pad2(n) {
+        return String(n).padStart(2, '0');
+      }
+
+      function formatLocal(d) {
+        return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+      }
+
+      function buildTile(line1, line2) {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = WATERMARK_CONFIG.tileWidth;
+        const h = WATERMARK_CONFIG.tileHeight;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        const ctx = canvas.getContext('2d', { alpha: true });
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, w, h);
+        ctx.globalAlpha = 0.22;
+        ctx.fillStyle = 'rgb(130, 130, 130)';
+        ctx.font = `${WATERMARK_CONFIG.fontSize}px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif`;
+        ctx.textBaseline = 'middle';
+        ctx.save();
+        ctx.translate(w / 2, h / 2);
+        ctx.rotate((WATERMARK_CONFIG.rotateDeg * Math.PI) / 180);
+        ctx.translate(-w / 2, -h / 2);
+        const x = 28;
+        const y = h / 2 - 10;
+        ctx.fillText(line1, x, y);
+        ctx.fillText(line2, x, y + WATERMARK_CONFIG.fontSize + WATERMARK_CONFIG.lineGap);
+        ctx.restore();
+        return canvas.toDataURL('image/png');
+      }
+
+      function refreshWatermark() {
+        const el = document.querySelector('.watermark');
+        if (!el) return;
+        const now = new Date();
+        const url = buildTile(WATERMARK_CONFIG.text, formatLocal(now));
+        el.style.backgroundImage = `url(${url})`;
+        el.style.backgroundSize = `${WATERMARK_CONFIG.tileWidth}px ${WATERMARK_CONFIG.tileHeight}px`;
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', refreshWatermark);
+      } else {
+        refreshWatermark();
+      }
+
+      if (WATERMARK_CONFIG.refreshEachMinute) {
+        setInterval(refreshWatermark, 60 * 1000);
+      }
+    })();
+  </script>
+  <div class="watermark"></div>
+<script>
+(function(){
+  if (document.getElementById('globalServerTime')) return;
+  var b=document.createElement('div');
+  b.id='globalServerTime';
+  b.title='服务器时间（UTC+8 北京时间），全局共同组件';
+  b.style.cssText='position:fixed;top:10px;right:16px;z-index:99999;font-size:12px;color:#c9d1d9;background:rgba(22,27,34,0.85);border:1px solid rgba(255,255,255,0.08);padding:4px 12px;border-radius:6px;font-family:monospace;pointer-events:none;';
+  function p(n){return String(n).padStart(2,'0');}
+  function tick(){var d=new Date();b.textContent='服务器时间 '+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds())+'（北京时间）';}
+  function init(){document.body.appendChild(b);tick();setInterval(tick,1000);}
+  if(document.body){init();}else{document.addEventListener('DOMContentLoaded',init);}
+})();
+</script>
+
+<style>
+/* 顶栏三组下拉（tms-nav-*，独立命名空间，全站统一） */
+.top-nav,.top-nav-menu{overflow:visible !important;}
+.tms-nav-item{display:inline-flex;align-items:center;gap:4px;padding:8px 13px;font-size:13px;color:#8b949e;text-decoration:none;cursor:pointer;border-radius:6px;white-space:nowrap;line-height:1;}
+.tms-nav-item:hover{color:#e6edf3;}
+.tms-nav-item.active{color:#58a6ff;}
+.tms-nav-group{position:relative;display:inline-flex;align-items:center;}
+.tms-nav-group.active>.tms-nav-trigger{color:#58a6ff;}
+.tms-nav-caret{font-size:10px;transition:transform .18s;}
+.tms-nav-group.open .tms-nav-caret{transform:rotate(180deg);}
+.tms-nav-dd{position:absolute;top:100%;left:0;margin-top:4px;min-width:150px;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:5px;opacity:0;visibility:hidden;transform:translateY(-4px);transition:.16s;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.45);}
+.tms-nav-group.open .tms-nav-dd{opacity:1;visibility:visible;transform:translateY(0);}
+.tms-nav-dd a{display:block;padding:8px 12px;font-size:13px;color:#8b949e;border-radius:6px;text-decoration:none;white-space:nowrap;}
+.tms-nav-dd a:hover{background:#21262d;color:#e6edf3;}
+.tms-nav-dd a.cur{color:#58a6ff;background:rgba(88,166,255,.12);}
+</style>
+<script>
+(function(){
+  var gs=[].slice.call(document.querySelectorAll('.tms-nav-group'));
+  gs.forEach(function(g){
+    var t=g.querySelector('.tms-nav-trigger'); if(!t) return;
+    t.addEventListener('click',function(e){e.stopPropagation();var o=g.classList.contains('open');gs.forEach(function(x){x.classList.remove('open');});if(!o)g.classList.add('open');});
+  });
+  document.addEventListener('click',function(){gs.forEach(function(x){x.classList.remove('open');});});
+})();
+</script>
+</body>
+
+</html>
