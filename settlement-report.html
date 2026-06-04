@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>结算报表 · TMS</title>
 <style>
-  :root{--bg-primary:#0d1117;--bg-secondary:#161b22;--border:#30363d;--text-primary:#e6edf3;--text-secondary:#8b949e;--text-muted:#6e7681;--accent-blue:#58a6ff;--accent-orange:#d29922;}
+  :root{--bg-primary:#0d1117;--bg-secondary:#161b22;--bg-tertiary:#1c2128;--bg-hover:#21262d;--border:#30363d;--text-primary:#e6edf3;--text-secondary:#8b949e;--text-muted:#6e7681;--accent-blue:#58a6ff;--accent-green:#3fb950;--accent-red:#f85149;--accent-orange:#d29922;--accent-purple:#a371f7;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg-primary);color:var(--text-primary);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;}
-  /* 顶栏（与全站一致：tms-nav-* 三组下拉） */
+
   .top-nav{display:flex;align-items:center;height:52px;background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:0 16px;gap:4px;position:relative;z-index:100;overflow:visible;}
   .top-nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;margin-right:14px;}
   .top-nav-logo-icon{width:24px;height:24px;border-radius:6px;background:var(--accent-blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;}
@@ -27,13 +27,75 @@
   .tms-nav-dd a{display:block;padding:8px 12px;font-size:13px;color:#8b949e;border-radius:6px;text-decoration:none;white-space:nowrap;}
   .tms-nav-dd a:hover{background:#21262d;color:#e6edf3;}
   .tms-nav-dd a.cur{color:#58a6ff;background:rgba(88,166,255,.12);}
-  /* 待重新规划 占位层 */
-  .placeholder-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 52px);padding:40px;text-align:center;}
-  .placeholder-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:16px;padding:48px 56px;max-width:540px;}
-  .placeholder-icon{font-size:56px;margin-bottom:18px;opacity:.85;}
-  .placeholder-title{font-size:22px;font-weight:600;margin-bottom:12px;}
-  .placeholder-badge{display:inline-block;font-size:13px;color:var(--accent-orange);background:rgba(210,153,34,.15);border:1px solid rgba(210,153,34,.4);padding:4px 16px;border-radius:14px;margin-bottom:20px;font-weight:500;}
-  .placeholder-desc{font-size:14px;color:var(--text-secondary);line-height:1.9;}
+
+  .wrap{padding:18px 22px;max-width:1280px;margin:0 auto;}
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .page-header h1{font-size:18px;font-weight:600;display:flex;align-items:center;gap:8px;}
+  .btn{background:var(--bg-tertiary);border:1px solid var(--border);color:var(--text-secondary);border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;}
+  .btn:hover{border-color:var(--accent-blue);color:var(--text-primary);}
+  .btn-primary{background:var(--accent-blue);color:#fff;border-color:var(--accent-blue);}
+
+  .rpt-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+  .rpt-tab{padding:10px 18px;font-size:14px;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+  .rpt-tab:hover{color:var(--text-primary);}
+  .rpt-tab.active{color:var(--accent-blue);border-bottom-color:var(--accent-blue);font-weight:500;}
+  .rpt-panel{display:none;}
+  .rpt-panel.active{display:block;}
+
+  .query-bar{background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;}
+  .q-group{display:flex;align-items:center;gap:6px;}
+  .q-group label{font-size:12px;color:var(--text-secondary);white-space:nowrap;}
+  select,input[type=text],input[type=date]{background:var(--bg-tertiary);border:1px solid var(--border);color:var(--text-primary);border-radius:6px;padding:6px 9px;font-size:12px;outline:none;}
+  select:focus,input:focus{border-color:var(--accent-blue);}
+  .q-shortcuts{display:inline-flex;gap:4px;}
+  .q-shortcut{background:var(--bg-tertiary);border:1px solid var(--border);color:var(--text-secondary);border-radius:5px;padding:5px 10px;font-size:11px;cursor:pointer;}
+  .q-shortcut.active{background:rgba(88,166,255,.15);color:var(--accent-blue);border-color:var(--accent-blue);}
+  .q-search{min-width:200px;}
+  .q-go{margin-left:auto;}
+
+  .note{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.3);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text-secondary);margin-bottom:14px;line-height:1.6;}
+  .note b{color:var(--accent-blue);}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px;}
+  .stat-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+  .stat-card-label{font-size:12px;color:var(--text-muted);}
+  .stat-card-value{font-size:24px;font-weight:700;margin-top:4px;}
+  .stat-card-value.profit{color:var(--accent-green);}
+  .stat-card-value.payout{color:var(--accent-orange);}
+  .stat-card-sub{font-size:11px;color:var(--text-muted);margin-top:4px;}
+
+  .chart-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:16px;}
+  @media(max-width:820px){.chart-row{grid-template-columns:1fr;}}
+  .chart-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+  .chart-title{font-size:13px;font-weight:500;margin-bottom:10px;color:var(--text-primary);}
+  .legend{display:flex;gap:16px;justify-content:center;margin-top:8px;font-size:12px;color:var(--text-secondary);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:10px;height:10px;border-radius:2px;display:inline-block;}
+  .bar3{display:flex;flex-direction:column;gap:13px;margin-top:8px;}
+  .bar3-row{display:flex;align-items:center;gap:10px;}
+  .bar3-label{width:60px;font-size:12px;color:var(--text-secondary);flex-shrink:0;text-align:right;}
+  .bar3-track{flex:1;height:26px;background:var(--bg-tertiary);border-radius:6px;overflow:hidden;}
+  .bar3-fill{height:100%;border-radius:6px;}
+  .bar3-val{width:148px;font-size:12px;color:var(--text-primary);flex-shrink:0;font-family:ui-monospace,Menlo,monospace;}
+  .bar3-val em{font-style:normal;color:var(--text-muted);font-size:11px;}
+
+  .table-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .table-card-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+  .table-card-title{font-size:13px;font-weight:500;}
+  .table-scroll{overflow-x:auto;}
+  table.rpt{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;}
+  table.rpt th{text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500;background:var(--bg-tertiary);border-bottom:1px solid var(--border);font-size:11px;}
+  table.rpt td{padding:10px 12px;border-bottom:1px solid var(--border);}
+  table.rpt tbody tr:hover{background:var(--bg-hover);}
+  table.rpt th.tc,table.rpt td.tc{text-align:center;}
+  table.rpt th.tr,table.rpt td.tr{text-align:right;}
+  .league-tag{font-size:10px;padding:1px 7px;border-radius:4px;background:rgba(88,166,255,.15);color:var(--accent-blue);}
+  .status-tag{font-size:11px;padding:2px 8px;border-radius:10px;}
+  .st-settled{background:rgba(63,185,80,.15);color:var(--accent-green);}
+  .st-cancel{background:rgba(139,148,158,.15);color:var(--text-secondary);}
+  .profit{color:var(--accent-green);}.loss{color:var(--accent-red);}.payout{color:var(--accent-orange);}
+  .mono{font-family:ui-monospace,Menlo,monospace;}
+  .src-tag{font-size:10px;color:var(--text-muted);}
 </style>
 </head>
 <body>
@@ -43,50 +105,188 @@
       <a class="tms-nav-item" href="league-management.html">联赛管理</a>
       <div class="tms-nav-group">
         <span class="tms-nav-item tms-nav-trigger" data-group>操盘管理 <span class="tms-nav-caret">▾</span></span>
-        <div class="tms-nav-dd">
-          <a href="trading-list.html">操盘列表</a>
-          <a href="trading-detail.html">操盘详情</a>
-        </div>
+        <div class="tms-nav-dd"><a href="trading-list.html">操盘列表</a><a href="trading-detail.html">操盘详情</a></div>
       </div>
       <div class="tms-nav-group">
         <span class="tms-nav-item tms-nav-trigger" data-group>风控管理 <span class="tms-nav-caret">▾</span></span>
-        <div class="tms-nav-dd">
-          <a href="risk-management.html">风控配置</a>
-          <a href="risk-log.html">风控日志</a>
-        </div>
+        <div class="tms-nav-dd"><a href="risk-management.html">风控配置</a><a href="risk-log.html">风控日志</a></div>
       </div>
       <div class="tms-nav-group active">
         <span class="tms-nav-item tms-nav-trigger" data-group>结算管理 <span class="tms-nav-caret">▾</span></span>
-        <div class="tms-nav-dd">
-          <a href="settlement-list.html">结算列表</a>
-          <a href="settlement-detail.html">结算详情</a>
-          <a href="settlement-report.html" class="cur">结算报表</a>
+        <div class="tms-nav-dd"><a href="settlement-list.html">结算列表</a><a href="settlement-detail.html">结算详情</a><a href="settlement-report.html" class="cur">结算报表</a></div>
+      </div>
+    </div>
+    <div class="top-nav-right"><div class="top-nav-logo-icon" style="background:var(--accent-blue);">张</div></div>
+  </nav>
+
+  <div class="wrap">
+    <div class="page-header">
+      <h1><span>📊</span>结算报表</h1>
+      <div style="display:flex;gap:8px;">
+        <button class="btn" onclick="alert('导出 CSV（演示）')">导出 CSV</button>
+        <button class="btn" onclick="alert('导出 Excel（演示）')">导出 Excel</button>
+        <button class="btn btn-primary" onclick="alert('刷新（演示）')">刷新</button>
+      </div>
+    </div>
+
+    <div class="rpt-tabs">
+      <div class="rpt-tab active" data-k="report" onclick="switchTab('report',this)">赛事报表</div>
+      <div class="rpt-tab" data-k="archive" onclick="switchTab('archive',this)">归档查询</div>
+      <div class="rpt-tab" data-k="history" onclick="switchTab('history',this)">历史查询</div>
+    </div>
+
+    <!-- ===== 赛事报表 ===== -->
+    <div class="rpt-panel active" id="panel-report">
+      <div class="chart-row">
+        <div class="chart-card">
+          <div class="chart-title">结算赛事数 · 近 7 日（今日 32 场）</div>
+          <svg viewBox="0 0 560 180" width="100%" height="180">
+            <line x1="40" y1="150" x2="540" y2="150" stroke="#30363d"/>
+            <g fill="#58a6ff">
+              <rect x="55"  y="88"  width="40" height="62"  rx="3"/>
+              <rect x="125" y="74"  width="40" height="76"  rx="3"/>
+              <rect x="195" y="57"  width="40" height="93"  rx="3"/>
+              <rect x="265" y="64"  width="40" height="86"  rx="3"/>
+              <rect x="335" y="47"  width="40" height="103" rx="3"/>
+              <rect x="405" y="54"  width="40" height="96"  rx="3"/>
+              <rect x="475" y="40"  width="40" height="110" rx="3" fill="#388bfd"/>
+            </g>
+            <g fill="#8b949e" font-size="11" text-anchor="middle">
+              <text x="75" y="166">1/24</text><text x="145" y="166">1/25</text><text x="215" y="166">1/26</text>
+              <text x="285" y="166">1/27</text><text x="355" y="166">1/28</text><text x="425" y="166">1/29</text><text x="495" y="166">1/30</text>
+            </g>
+            <g fill="#e6edf3" font-size="11" text-anchor="middle" font-weight="600">
+              <text x="75" y="80">18</text><text x="145" y="66">22</text><text x="215" y="49">27</text>
+              <text x="285" y="56">25</text><text x="355" y="39">30</text><text x="425" y="46">28</text><text x="495" y="32">32</text>
+            </g>
+          </svg>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">总注单数 · 1,256</div>
+          <svg viewBox="0 0 120 120" width="160" height="160" style="display:block;margin:0 auto;">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#30363d" stroke-width="16"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#58a6ff" stroke-width="16" stroke-dasharray="245 69.2" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#d29922" stroke-width="16" stroke-dasharray="69.2 245" stroke-dashoffset="-245" transform="rotate(-90 60 60)"/>
+            <text x="60" y="56" text-anchor="middle" fill="#e6edf3" font-size="16" font-weight="700">1,256</text>
+            <text x="60" y="72" text-anchor="middle" fill="#8b949e" font-size="9">总注单</text>
+          </svg>
+          <div class="legend">
+            <span><i class="dot" style="background:#58a6ff;"></i>单关 980 (78%)</span>
+            <span><i class="dot" style="background:#d29922;"></i>串关 276 (22%)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-card">
+          <div class="chart-title">资金构成 · 占总投注额比例（总投注额 = 派彩额 + 平台盈亏）</div>
+          <div class="bar3">
+            <div class="bar3-row"><span class="bar3-label">总投注额</span><div class="bar3-track"><div class="bar3-fill" style="width:100%;background:#58a6ff;"></div></div><span class="bar3-val">¥8.2M <em>100%</em></span></div>
+            <div class="bar3-row"><span class="bar3-label">派彩额</span><div class="bar3-track"><div class="bar3-fill" style="width:82.9%;background:#d29922;"></div></div><span class="bar3-val">¥6.8M <em>82.9% · RTP</em></span></div>
+            <div class="bar3-row"><span class="bar3-label">平台盈亏</span><div class="bar3-track"><div class="bar3-fill" style="width:17.1%;background:#3fb950;"></div></div><span class="bar3-val">+¥1.4M <em>17.1% · 盈利率</em></span></div>
+          </div>
+        </div>
+        <div class="chart-card" style="display:flex;flex-direction:column;justify-content:center;">
+          <div class="stat-card-label">投注人数</div>
+          <div class="stat-card-value">537</div>
+          <div class="stat-card-sub">人均投注额 ¥15.3K</div>
+        </div>
+      </div>
+
+      <div class="query-bar">
+        <div class="q-group"><label>时间</label><input type="date" value="2026-01-24"><span style="color:var(--text-muted);">~</span><input type="date" value="2026-01-30"></div>
+        <div class="q-shortcuts"><button class="q-shortcut">今天</button><button class="q-shortcut">昨天</button><button class="q-shortcut">本周</button><button class="q-shortcut active">近7日</button><button class="q-shortcut">本月</button></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-head"><div class="table-card-title">每日结算指标</div><div style="font-size:12px;color:var(--text-muted);">2026-01-24 ~ 2026-01-30</div></div>
+        <div class="table-scroll">
+          <table class="rpt">
+            <thead><tr><th>日期</th><th class="tr">投注额</th><th class="tc">投注人数(去重)</th><th class="tr">派彩</th><th class="tr">盈亏</th><th class="tc">盈利率</th></tr></thead>
+            <tbody>
+              <tr><td>2026-01-24</td><td class="tr mono">¥4,600,000</td><td class="tc">312</td><td class="tr mono payout">¥3,900,000</td><td class="tr mono profit">+¥700,000</td><td class="tc profit">15.2%</td></tr>
+              <tr><td>2026-01-25</td><td class="tr mono">¥5,500,000</td><td class="tc">358</td><td class="tr mono payout">¥4,600,000</td><td class="tr mono profit">+¥900,000</td><td class="tc profit">16.4%</td></tr>
+              <tr><td>2026-01-26</td><td class="tr mono">¥6,800,000</td><td class="tc">421</td><td class="tr mono payout">¥5,600,000</td><td class="tr mono profit">+¥1,200,000</td><td class="tc profit">17.6%</td></tr>
+              <tr><td>2026-01-27</td><td class="tr mono">¥6,200,000</td><td class="tc">389</td><td class="tr mono payout">¥5,200,000</td><td class="tr mono profit">+¥1,000,000</td><td class="tc profit">16.1%</td></tr>
+              <tr><td>2026-01-28</td><td class="tr mono">¥7,500,000</td><td class="tc">478</td><td class="tr mono payout">¥6,200,000</td><td class="tr mono profit">+¥1,300,000</td><td class="tc profit">17.3%</td></tr>
+              <tr><td>2026-01-29</td><td class="tr mono">¥7,100,000</td><td class="tc">445</td><td class="tr mono payout">¥6,000,000</td><td class="tr mono profit">+¥1,100,000</td><td class="tc profit">15.5%</td></tr>
+              <tr><td>2026-01-30</td><td class="tr mono">¥8,200,000</td><td class="tc">537</td><td class="tr mono payout">¥6,800,000</td><td class="tr mono profit">+¥1,400,000</td><td class="tc profit">17.1%</td></tr>
+            </tbody>
+            <tfoot><tr style="font-weight:600;background:var(--bg-tertiary);"><td>合计</td><td class="tr mono">¥45,900,000</td><td class="tc">1,842</td><td class="tr mono payout">¥38,300,000</td><td class="tr mono profit">+¥7,600,000</td><td class="tc profit">16.6%</td></tr></tfoot>
+          </table>
+        </div>
+        <div style="padding:8px 14px;font-size:11px;color:var(--text-muted);border-top:1px solid var(--border);">投注人数为去重统计;合计为周期内去重人数,非每日相加。</div>
+      </div>
+    </div>
+
+    <!-- ===== 归档查询（近 1 年） ===== -->
+    <div class="rpt-panel" id="panel-archive">
+      <div class="note">📦 <b>归档区 · 近 1 年</b>:查询近 1 年内已结算赛事的实际结算结果(比赛果区更细,含最终比分 / 盘口数 / 派彩 / 结算人员)。更早的请用「历史查询」。</div>
+      <div class="query-bar">
+        <div class="q-group"><label>日期(近1年)</label><input type="date" value="2025-09-01"><span style="color:var(--text-muted);">~</span><input type="date" value="2026-06-04"></div>
+        <div class="q-group"><label>联赛</label><select><option>全部联赛</option><option>英超</option><option>西甲</option></select></div>
+        <div class="q-group"><label>操盘员</label><select><option>全部</option><option>张三</option><option>李四</option><option>王五</option></select></div>
+        <div class="q-group"><label>结算来源</label><select><option>全部</option><option>数据源结算</option><option>本地结算</option></select></div>
+        <input type="text" class="q-search" placeholder="搜索赛事ID / 球队 / 盘口…">
+        <button class="btn btn-primary q-go">查询</button>
+      </div>
+      <div class="table-card">
+        <div class="table-card-head"><div class="table-card-title">归档结算结果(近 1 年)</div><div style="font-size:12px;color:var(--text-muted);">共 1,820 场</div></div>
+        <div class="table-scroll">
+          <table class="rpt">
+            <thead><tr><th>赛事</th><th class="tc">最终比分</th><th class="tc">盘口数</th><th class="tc">注单数</th><th class="tr">投注额</th><th class="tr">派彩</th><th class="tr">盈亏</th><th class="tc">结算来源</th><th class="tc">结算人员</th><th class="tc">结算时间</th></tr></thead>
+            <tbody>
+              <tr><td><span class="league-tag">英超</span> 阿森纳 vs 切尔西</td><td class="tc"><b>3-1</b></td><td class="tc">12</td><td class="tc">204</td><td class="tr mono">¥1,520,000</td><td class="tr mono payout">¥1,180,000</td><td class="tr mono profit">+¥340,000</td><td class="tc"><span class="src-tag">数据源</span></td><td class="tc">张三</td><td class="tc">2026-05-12 04:50</td></tr>
+              <tr><td><span class="league-tag">西甲</span> 马竞 vs 塞维利亚</td><td class="tc"><b>2-2</b></td><td class="tc">9</td><td class="tc">133</td><td class="tr mono">¥870,000</td><td class="tr mono payout">¥910,000</td><td class="tr mono loss">−¥40,000</td><td class="tc"><span class="src-tag">本地</span></td><td class="tc">李四</td><td class="tc">2026-03-08 05:20</td></tr>
+              <tr><td><span class="league-tag">德甲</span> 拜仁 vs 多特</td><td class="tc"><b>4-0</b></td><td class="tc">11</td><td class="tc">188</td><td class="tr mono">¥1,340,000</td><td class="tr mono payout">¥980,000</td><td class="tr mono profit">+¥360,000</td><td class="tc"><span class="src-tag">数据源</span></td><td class="tc">王五</td><td class="tc">2025-11-23 23:40</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-    <div class="top-nav-right">
-      <div class="top-nav-logo-icon" style="background:var(--accent-blue);">张</div>
-    </div>
-  </nav>
 
-  <div class="placeholder-wrap">
-    <div class="placeholder-card">
-      <div class="placeholder-icon">📊</div>
-      <div class="placeholder-title">结算报表</div>
-      <div class="placeholder-badge">待重新规划</div>
-      <div class="placeholder-desc">本模块正在重新规划中，功能与页面结构稍后确定。<br>顶部导航可正常切换到其它模块。</div>
+    <!-- ===== 历史查询（1 年以上） ===== -->
+    <div class="rpt-panel" id="panel-history">
+      <div class="note">🗄️ <b>历史区 · 1 年以上(冷归档)</b>:查询 1 年前的结算结果,数据保留至合规期限(留存天数由合规 / 法务拍板);冷存储查询可能稍慢。</div>
+      <div class="query-bar">
+        <div class="q-group"><label>日期(1年以上)</label><input type="date" value="2024-01-01"><span style="color:var(--text-muted);">~</span><input type="date" value="2025-06-03"></div>
+        <div class="q-group"><label>联赛</label><select><option>全部联赛</option><option>英超</option><option>西甲</option></select></div>
+        <div class="q-group"><label>操盘员</label><select><option>全部</option><option>张三</option><option>李四</option><option>王五</option></select></div>
+        <div class="q-group"><label>结算来源</label><select><option>全部</option><option>数据源结算</option><option>本地结算</option></select></div>
+        <input type="text" class="q-search" placeholder="搜索赛事ID / 球队 / 盘口…">
+        <button class="btn btn-primary q-go">查询</button>
+      </div>
+      <div class="table-card">
+        <div class="table-card-head"><div class="table-card-title">历史结算结果(1 年以上 · 冷归档)</div><div style="font-size:12px;color:var(--text-muted);">共 6,402 场</div></div>
+        <div class="table-scroll">
+          <table class="rpt">
+            <thead><tr><th>赛事</th><th class="tc">最终比分</th><th class="tc">盘口数</th><th class="tc">注单数</th><th class="tr">投注额</th><th class="tr">派彩</th><th class="tr">盈亏</th><th class="tc">结算来源</th><th class="tc">结算人员</th><th class="tc">结算时间</th></tr></thead>
+            <tbody>
+              <tr><td><span class="league-tag">英超</span> 利物浦 vs 曼城</td><td class="tc"><b>1-2</b></td><td class="tc">12</td><td class="tc">221</td><td class="tr mono">¥1,610,000</td><td class="tr mono payout">¥1,450,000</td><td class="tr mono profit">+¥160,000</td><td class="tc"><span class="src-tag">数据源</span></td><td class="tc">张三</td><td class="tc">2025-04-19 23:30</td></tr>
+              <tr><td><span class="league-tag">意甲</span> AC米兰 vs 那不勒斯</td><td class="tc"><b>0-1</b></td><td class="tc">10</td><td class="tc">156</td><td class="tr mono">¥1,020,000</td><td class="tr mono payout">¥1,090,000</td><td class="tr mono loss">−¥70,000</td><td class="tc"><span class="src-tag">本地</span></td><td class="tc">李四</td><td class="tc">2024-12-01 22:00</td></tr>
+              <tr><td><span class="league-tag">法甲</span> 巴黎 vs 马赛</td><td class="tc"><b>3-0</b></td><td class="tc">9</td><td class="tc">142</td><td class="tr mono">¥940,000</td><td class="tr mono payout">¥700,000</td><td class="tr mono profit">+¥240,000</td><td class="tc"><span class="src-tag">数据源</span></td><td class="tc">王五</td><td class="tc">2024-08-15 03:10</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
 <script>
 (function(){
   var gs=[].slice.call(document.querySelectorAll('.tms-nav-group'));
-  gs.forEach(function(g){
-    var t=g.querySelector('.tms-nav-trigger'); if(!t) return;
-    t.addEventListener('click',function(e){e.stopPropagation();var o=g.classList.contains('open');gs.forEach(function(x){x.classList.remove('open');});if(!o)g.classList.add('open');});
-  });
+  gs.forEach(function(g){var t=g.querySelector('.tms-nav-trigger');if(!t)return;t.addEventListener('click',function(e){e.stopPropagation();var o=g.classList.contains('open');gs.forEach(function(x){x.classList.remove('open');});if(!o)g.classList.add('open');});});
   document.addEventListener('click',function(){gs.forEach(function(x){x.classList.remove('open');});});
 })();
+function switchTab(k, el){
+  document.querySelectorAll('.rpt-tab').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  document.querySelectorAll('.rpt-panel').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('panel-'+k).classList.add('active');
+}
+document.querySelectorAll('.q-shortcuts').forEach(function(box){
+  box.querySelectorAll('.q-shortcut').forEach(function(b){b.addEventListener('click',function(){box.querySelectorAll('.q-shortcut').forEach(function(x){x.classList.remove('active');});b.classList.add('active');});});
+});
 </script>
 </body>
 </html>
